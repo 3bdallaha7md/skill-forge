@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill Forge — Autonomous AI Skill Improvement</title>
+<meta name="description" content="An autonomous experiment loop that makes AI skills better while you sleep. Inspired by Karpathy's autoresearch.">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --border: #1e1e2e;
+    --text: #e0e0e8;
+    --muted: #8888a0;
+    --accent: #f59e0b;
+    --accent2: #3b82f6;
+    --glow: rgba(245, 158, 11, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Animated background grid */
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(245, 158, 11, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 100px 0 80px;
+    text-align: center;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    letter-spacing: 0.5px;
+  }
+
+  .hero-badge span {
+    color: var(--accent);
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 24px;
+  }
+
+  h1 .forge {
+    background: linear-gradient(135deg, var(--accent), #ef4444);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    font-size: 1.2rem;
+    color: var(--muted);
+    max-width: 600px;
+    margin: 0 auto 40px;
+  }
+
+  .cta-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px var(--glow);
+  }
+
+  .btn-secondary {
+    border: 1px solid var(--border);
+    color: var(--text);
+    background: var(--surface);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Loop animation */
+  .loop-visual {
+    margin: 60px auto 0;
+    max-width: 700px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .loop-visual::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: scan 3s ease-in-out infinite;
+  }
+
+  @keyframes scan {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  .loop-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 14px;
+  }
+
+  .loop-step {
+    padding: 8px 14px;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 8px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .loop-arrow {
+    color: var(--muted);
+    font-size: 18px;
+  }
+
+  /* Sections */
+  section {
+    padding: 80px 0;
+  }
+
+  h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+  }
+
+  h2 .highlight {
+    color: var(--accent);
+  }
+
+  .section-sub {
+    color: var(--muted);
+    font-size: 1.05rem;
+    margin-bottom: 48px;
+    max-width: 600px;
+  }
+
+  /* Agent cards */
+  .agent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .agent-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    transition: border-color 0.2s;
+  }
+
+  .agent-card:hover {
+    border-color: var(--accent);
+  }
+
+  .agent-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+
+  .agent-card:nth-child(1) .agent-icon { background: rgba(245, 158, 11, 0.12); }
+  .agent-card:nth-child(2) .agent-icon { background: rgba(59, 130, 246, 0.12); }
+  .agent-card:nth-child(3) .agent-icon { background: rgba(16, 185, 129, 0.12); }
+
+  .agent-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+  }
+
+  .agent-card .role {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .agent-card p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Score formula */
+  .formula-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px;
+    margin: 40px 0;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    text-align: center;
+  }
+
+  .formula-label {
+    font-family: -apple-system, sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  .formula {
+    font-size: 1.1rem;
+    color: var(--accent);
+  }
+
+  /* Results */
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+  }
+
+  .result-card h3 {
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+
+  .result-card .desc {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .score-label {
+    font-size: 13px;
+    color: var(--muted);
+    width: 50px;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1.5s ease;
+  }
+
+  .bar-fill.before { background: var(--muted); }
+  .bar-fill.after { background: var(--accent); }
+
+  .score-val {
+    font-family: 'SF Mono', monospace;
+    font-size: 13px;
+    width: 42px;
+    text-align: right;
+  }
+
+  .result-insight {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* Features */
+  .feature-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .feature {
+    display: flex;
+    gap: 14px;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .feature-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-top: 8px;
+    flex-shrink: 0;
+  }
+
+  .feature h4 {
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+  }
+
+  .feature p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Code block */
+  .code-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 40px 0;
+  }
+
+  .code-header {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .code-header .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+
+  .code-header .dot:nth-child(1) { background: #ef4444; }
+  .code-header .dot:nth-child(2) { background: #f59e0b; }
+  .code-header .dot:nth-child(3) { background: #10b981; }
+
+  .code-body {
+    padding: 20px 24px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    overflow-x: auto;
+    color: var(--muted);
+  }
+
+  .code-body .comment { color: #555570; }
+  .code-body .cmd { color: var(--accent); }
+  .code-body .string { color: #10b981; }
+
+  /* Footer */
+  footer {
+    padding: 60px 0 40px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  footer p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  footer a:hover { text-decoration: underline; }
+
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .hero { padding: 60px 0 40px; }
+    section { padding: 50px 0; }
+    .loop-visual { padding: 24px 16px; }
+    .loop-steps { gap: 6px; }
+    .loop-step { padding: 6px 10px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-badge">Open Source <span>&middot;</span> MIT License <span>&middot;</span> Claude Cowork</div>
+    <h1>Skill <span class="forge">Forge</span></h1>
+    <p>An autonomous experiment loop that makes AI skills better while you sleep. Point it at any skill, wake up to measurable improvements.</p>
+    <div class="cta-row">
+      <a href="https://github.com/GodModeAI2025/skill-forge" class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        View on GitHub
+      </a>
+      <a href="#quickstart" class="btn btn-secondary">Quick Start</a>
+    </div>
+
+    <div class="loop-visual">
+      <div class="loop-steps">
+        <span class="loop-step">Analyze</span>
+        <span class="loop-arrow">&rarr;</span>
+        <span class="loop-step">Hypothesize</span>
+        <span class="loop-arrow">&rarr;</span>
+        <span class="loop-step">Mutate</span>
+        <span class="loop-arrow">&rarr;</span>
+        <span class="loop-step">Evaluate</span>
+        <span class="loop-arrow">&rarr;</span>
+        <span class="loop-step">Score</span>
+        <span class="loop-arrow">&rarr;</span>
+        <span class="loop-step">Keep / Revert</span>
+        <span class="loop-arrow">&circlearrowleft;</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Agents -->
+<section>
+  <div class="container">
+    <h2>Three <span class="highlight">Agents</span>, One Loop</h2>
+    <p class="section-sub">Each experiment cycle is driven by three specialized agents working in sequence.</p>
+
+    <div class="agent-grid">
+      <div class="agent-card">
+        <div class="agent-icon">&#x1f52c;</div>
+        <h3>Hypothesis Agent</h3>
+        <div class="role">The Scientist</div>
+        <p>Analyzes grading results and failure patterns. Produces a testable hypothesis with a concrete mutation proposal targeting the root cause.</p>
+      </div>
+      <div class="agent-card">
+        <div class="agent-icon">&#x1fa79;</div>
+        <h3>Mutator Agent</h3>
+        <div class="role">The Surgeon</div>
+        <p>Applies one minimal, focused change to SKILL.md. Documents exactly what changed and why, keeping mutations atomic and reversible.</p>
+      </div>
+      <div class="agent-card">
+        <div class="agent-icon">&#x2696;</div>
+        <h3>Scorer Agent</h3>
+        <div class="role">The Judge</div>
+        <p>LLM-as-Judge evaluating output quality across four dimensions: task completion, quality, robustness, and efficiency.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Scoring -->
+<section>
+  <div class="container">
+    <h2>Objective <span class="highlight">Scoring</span></h2>
+    <p class="section-sub">Every mutation is measured against a composite metric. No vibes, no gut feeling — just numbers.</p>
+
+    <div class="formula-box">
+      <div class="formula-label">Composite Score</div>
+      <div class="formula">assertion_pass_rate &times; 0.80 &nbsp;+&nbsp; efficiency_score &times; 0.20</div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">With LLM-as-Judge (Blind A/B)</div>
+      <div class="formula">assertions &times; 0.50 &nbsp;+&nbsp; llm_judge &times; 0.30 &nbsp;+&nbsp; efficiency &times; 0.20</div>
+    </div>
+  </div>
+</section>
+
+<!-- Results -->
+<section>
+  <div class="container">
+    <h2>Real-World <span class="highlight">Results</span></h2>
+    <p class="section-sub">Tested on production skills with measurable before/after improvements.</p>
+
+    <div class="results-grid">
+      <div class="result-card">
+        <h3>fachbuch-lektorat</h3>
+        <div class="desc">German technical book editing &middot; 3 experiments</div>
+        <div class="score-bar">
+          <span class="score-label">Before</span>
+          <div class="bar-track"><div class="bar-fill before" style="width:87%"></div></div>
+          <span class="score-val">87%</span>
+        </div>
+        <div class="score-bar">
+          <span class="score-label">After</span>
+          <div class="bar-track"><div class="bar-fill after" style="width:100%"></div></div>
+          <span class="score-val">100%</span>
+        </div>
+        <div class="result-insight">Key insight: Worked examples beat abstract rules for edge-case handling.</div>
+      </div>
+      <div class="result-card">
+        <h3>was-bisher-geschah</h3>
+        <div class="desc">AI news briefing for LinkedIn &middot; 1 experiment</div>
+        <div class="score-bar">
+          <span class="score-label">Before</span>
+          <div class="bar-track"><div class="bar-fill before" style="width:93%"></div></div>
+          <span class="score-val">93%</span>
+        </div>
+        <div class="score-bar">
+          <span class="score-label">After</span>
+          <div class="bar-track"><div class="bar-fill after" style="width:100%"></div></div>
+          <span class="score-val">100%</span>
+        </div>
+        <div class="result-insight">Key insight: Explicit constraints (char limits, required fields) fix format drift.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section>
+  <div class="container">
+    <h2>Built to be <span class="highlight">Robust</span></h2>
+    <p class="section-sub">Production-grade safeguards so you can run it unattended overnight.</p>
+
+    <div class="feature-list">
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>Train/Test Split</h4>
+          <p>60/40 split prevents overfitting to specific eval cases.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>Crash Recovery</h4>
+          <p>Classifies errors (script bug, infra, eval) and continues the loop.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>Session Tagging</h4>
+          <p>Unique tags per run prevent conflicts from parallel experiments.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>Transcript Logging</h4>
+          <p>Full experiment transcripts for debugging and reproducibility.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>Eval Rotation</h4>
+          <p>Fresh eval queries after 5 experiments to maintain diversity.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>Generalization Check</h4>
+          <p>Hypothesis agent must explain why each change generalizes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quick Start -->
+<section id="quickstart">
+  <div class="container">
+    <h2>Quick <span class="highlight">Start</span></h2>
+
+    <div class="code-section">
+      <div class="code-header">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span style="margin-left:8px">Terminal</span>
+      </div>
+      <div class="code-body">
+        <span class="comment"># Clone the repo</span><br>
+        <span class="cmd">git clone</span> <span class="string">https://github.com/GodModeAI2025/skill-forge.git</span><br><br>
+        <span class="comment"># Copy into your Cowork skills folder</span><br>
+        <span class="cmd">cp -r</span> skill-forge/ ~/.skills/skills/skill-forge/<br><br>
+        <span class="comment"># Tell Claude to use it</span><br>
+        <span class="string">"Use skill-forge to improve my linkedin-content skill"</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-links">
+      <a href="https://github.com/GodModeAI2025/skill-forge">GitHub</a>
+      <a href="https://github.com/GodModeAI2025/skill-forge/blob/main/LICENSE">MIT License</a>
+      <a href="https://github.com/GodModeAI2025/skill-forge/blob/main/SKILL.md">SKILL.md</a>
+    </div>
+    <p>
+      Built by <a href="https://github.com/GodModeAI2025">Mark Zimmermann</a><br>
+      Inspired by <a href="https://github.com/karpathy/autoresearch">Andrej Karpathy's autoresearch</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
