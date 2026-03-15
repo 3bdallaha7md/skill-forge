@@ -1,16 +1,17 @@
 # Autoresearch Morning Report
 
 > Generiert: {timestamp}
-> Target-Skill: {skill_name}
+> Modus: {mode}
+> Target: {target_name}
 > Dauer: {total_duration}
 
 ## Zusammenfassung
 
 | Metrik | Start (v0) | Ende (v{final}) | Delta |
 |--------|-----------|-----------------|-------|
-| Composite Score | {start_score} | {end_score} | {delta_score} |
-| Assertion Pass Rate | {start_apr} | {end_apr} | {delta_apr} |
+| {metric_name} | {start_score} | {end_score} | {delta_score} |
 | Experimente | {total_experiments} | davon KEEP: {keeps} | REVERT: {reverts} |
+| Crashes | {crashes} | SKIPs: {skips} | |
 
 ## Score-Verlauf
 
@@ -34,6 +35,24 @@ Score
 
 {failed_hypotheses}
 
+## Coverage-Matrix
+
+| Kategorie | Experimente | KEEP | REVERT | Best Delta | Status |
+|-----------|------------|------|--------|------------|--------|
+{coverage_rows}
+
+**Coverage:** {coverage_percent}% ({touched}/{total} Kategorien berührt, {saturated} saturiert)
+
+**Unberührte Bereiche:** {untouched_categories}
+
+## TSV-Log (letzte 5 Einträge)
+
+```
+{tsv_tail}
+```
+
+Vollständiges Log: `{workspace_path}/experiment-log.tsv`
+
 ## Verbleibende Schwachstellen
 
 {remaining_weaknesses}
@@ -44,4 +63,4 @@ Score
 
 ---
 
-*Generiert vom autoresearch-skills Loop. Experiment-Logs unter: {workspace_path}/experiments/*
+*Generiert vom autoresearch Loop. Experiment-Logs unter: {workspace_path}/experiments/*

@@ -7,29 +7,22 @@ Ersetze die `{placeholder}` mit den konkreten Werten.
 ```
 Lies den Skill 'autoresearch-skills' und führe den autonomen Verbesserungsloop durch.
 
-## Target
-- Skill: {target_skill_name}
-- Skill-Pfad: {target_skill_path}
-- Workspace: {workspace_path}
-
 ## Konfiguration
-- Max Experimente: {max_experiments}
-- Zeitbudget: {time_budget_minutes} Minuten
-- Improvement Threshold: 0.02
-- Regression Threshold: 0.05
-- Comparator: {use_comparator}
+- Workspace: {workspace_path}
+- Config: {workspace_path}/config.json
 
 ## Anweisungen
 1. Lies die SKILL.md des autoresearch-skills Skills
-2. Prüfe ob {workspace_path}/history.json existiert
+2. Lies die config.json im Workspace für Modus, Scope, Metrik und alle Parameter
+3. Prüfe ob {workspace_path}/history.json existiert
    - Falls ja: Setze beim letzten Stand fort
-   - Falls nein: Starte mit Schritt 0 (Setup)
-3. Führe den Loop aus (Schritt 1-6) bis ein Abbruchkriterium greift
-4. Generiere den Morning Report als {workspace_path}/morning-report.md
-5. Speichere die beste SKILL.md Version in {workspace_path}/best/SKILL.md
+   - Falls nein: Starte mit Schritt 0 (Setup — Dry-Run-Validierung wiederholen)
+4. Führe den Loop aus (Schritt 1-6) bis ein Abbruchkriterium greift
+5. Generiere den Morning Report als {workspace_path}/morning-report.md
+6. Speichere die beste Version in {workspace_path}/snapshots/v{best}/
 ```
 
-## Beispiel: Scheduled Task erstellen
+## Beispiel: Skill-Modus Scheduled Task
 
 ```python
 # Täglicher Autoresearch-Run um 22:00
@@ -39,24 +32,39 @@ create_scheduled_task(
     description="Autoresearch-Loop für linkedin-content Skill",
     prompt="""Lies den Skill 'autoresearch-skills' und führe den autonomen Verbesserungsloop durch.
 
-## Target
-- Skill: linkedin-content
-- Skill-Pfad: /path/to/skills/linkedin-content
-- Workspace: /path/to/linkedin-content-autoresearch
-
 ## Konfiguration
-- Max Experimente: 8
-- Zeitbudget: 90 Minuten
-- Improvement Threshold: 0.02
-- Regression Threshold: 0.05
-- Comparator: false
+- Workspace: /path/to/linkedin-content-autoresearch
+- Config: /path/to/linkedin-content-autoresearch/config.json
 
 ## Anweisungen
 1. Lies die SKILL.md des autoresearch-skills Skills
-2. Prüfe ob history.json im Workspace existiert (Resume vs. Fresh Start)
-3. Führe den Loop aus bis ein Abbruchkriterium greift
-4. Generiere den Morning Report
-5. Speichere die beste SKILL.md Version"""
+2. Lies die config.json für alle Parameter
+3. Prüfe ob history.json existiert (Resume vs. Fresh Start)
+4. Führe den Loop aus bis ein Abbruchkriterium greift
+5. Generiere den Morning Report
+6. Speichere die beste SKILL.md"""
+)
+```
+
+## Beispiel: Generic-Modus Scheduled Task
+
+```python
+# Wöchentliche Bundle-Size-Optimierung
+create_scheduled_task(
+    taskId="autoresearch-bundle-size",
+    cronExpression="0 22 * * 0",  # Sonntags um 22:00
+    description="Autoresearch-Loop für Bundle-Size-Optimierung",
+    prompt="""Lies den Skill 'autoresearch-skills' und führe den autonomen Verbesserungsloop durch.
+
+## Konfiguration
+- Workspace: /path/to/project-bundle-autoresearch
+- Config: /path/to/project-bundle-autoresearch/config.json
+
+## Anweisungen
+1. Lies die SKILL.md des autoresearch-skills Skills
+2. Lies die config.json (Generic-Modus, Metrik: Bundle-Size)
+3. Führe den Loop aus bis Abbruchkriterium greift
+4. Generiere den Morning Report"""
 )
 ```
 

@@ -1,54 +1,92 @@
-# Skill Forge
+# Skill Forge v2
 
-Autonomous improvement of AI skills through iterative experimentation. An AI agent modifies a skill's instructions (SKILL.md), evaluates each change against objective metrics, keeps improvements, and reverts regressions — no human feedback in the loop.
+Autonomous improvement of AI skills and generic codebases through iterative experimentation. An AI agent modifies instructions or code, evaluates each change against objective metrics, keeps improvements, and reverts regressions — no human feedback in the loop.
 
 ## What it does
 
-Skill Forge runs an experiment loop on any Claude Cowork Skill:
+Skill Forge runs an experiment loop in two modes:
+
+**Skill Mode** — optimizes a Claude Cowork Skill's SKILL.md against eval assertions:
 
 ```
 Analyze → Hypothesize → Mutate SKILL.md → Evaluate → Score → Keep/Revert → Repeat
 ```
 
-You point it at a skill, it finds weaknesses, fixes them, and delivers an improved version with a full experiment log. Run it overnight, wake up to a better skill.
+**Generic Mode** — optimizes any file against any shell command that returns a number:
+
+```
+Analyze → Hypothesize → Mutate target file → Run metric command → Score → Keep/Revert → Repeat
+```
+
+You point it at a skill or codebase, it finds weaknesses, fixes them, and delivers an improved version with a full experiment log. Run it overnight, wake up to a better skill.
+
+## v2 highlights
+
+- **Two-mode architecture**: Skill Mode (SKILL.md + evals) and Generic Mode (any file + shell metric)
+- **Interactive Setup Wizard**: 6-step wizard with validation gates — each step must pass before proceeding
+- **Dry-Run Validation Gate**: Mandatory pre-flight check before the loop starts
+- **TSV Experiment Log**: Flat, one-line-per-experiment log for quick monitoring alongside JSON
+- **Coverage Matrix**: Tracks experiment distribution across categories with saturation detection
+- **Exploration-Exploitation Balance**: Early rounds explore untouched categories, late rounds exploit successful ones
+- **Improved Crash Handling**: Consecutive crash limit with SKIP path
 
 ## How it works
 
 ```
-┌──────────────────────────────────────┐
-│          Skill Forge Loop            │
-│                                      │
-│  ┌──────────┐    ┌──────────┐       │
-│  │Hypothesis │───▶│ Mutator  │       │
-│  │  Agent    │    │  Agent   │       │
-│  └────▲─────┘    └────┬─────┘       │
-│       │               │              │
-│       │          ┌────▼─────┐       │
-│       │          │  Run     │       │
-│       │          │  Evals   │       │
-│       │          └────┬─────┘       │
-│       │               │              │
-│       │          ┌────▼─────┐       │
-│       │          │  Grade   │       │
-│       │          │  + Score │       │
-│       │          └────┬─────┘       │
-│       │               │              │
-│       │          ┌────▼─────┐       │
-│       └──────────│  Keep /  │       │
-│                  │  Revert  │       │
-│                  └──────────┘       │
-└──────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│                  Skill Forge Loop                     │
+│                                                       │
+│  ┌─────────────┐  Wizard validates all 6 steps       │
+│  │ Setup Wizard │──────────────────────────┐          │
+│  └──────┬──────┘                           │          │
+│         │                                  │          │
+│  ┌──────▼──────┐  exit-code 0 + number     │          │
+│  │  Dry-Run    │───────────────────────────▶│         │
+│  │  Gate       │                            │          │
+│  └──────┬──────┘                            │          │
+│         │ PASS                              │          │
+│  ┌──────▼──────┐    ┌──────────┐           │          │
+│  │ Hypothesis  │───▶│ Mutator  │           │          │
+│  │   Agent     │    │  Agent   │           │          │
+│  └──────▲──────┘    └────┬─────┘           │          │
+│         │                │                  │          │
+│         │           ┌────▼─────┐           │          │
+│         │           │ Run Evals│           │          │
+│         │           │ / Metric │           │          │
+│         │           └────┬─────┘           │          │
+│         │                │                  │          │
+│         │           ┌────▼─────┐           │          │
+│         │           │  Score   │──▶ TSV    │          │
+│         │           │  + Grade │──▶ Coverage│         │
+│         │           └────┬─────┘           │          │
+│         │                │                  │          │
+│         │           ┌────▼─────┐           │          │
+│         └───────────│ Keep /   │           │          │
+│                     │ Revert   │           │          │
+│                     └──────────┘           │          │
+└──────────────────────────────────────────────────────┘
 ```
 
 ### The three agents
 
 | Agent | Role | Input | Output |
 |-------|------|-------|--------|
-| **Hypothesis** | "Scientist" — analyzes failures, identifies root cause | Grading results, SKILL.md, history | Testable hypothesis with mutation proposal |
-| **Mutator** | "Surgeon" — applies one focused change | Hypothesis, SKILL.md | Modified SKILL.md + documentation |
-| **Scorer** | "Judge" — evaluates output quality | Eval prompt, output | Normalized quality score (0-1) |
+| **Hypothesis** | "Scientist" — analyzes failures, checks coverage matrix | Grading results, SKILL.md, history, coverage | Testable hypothesis with mutation proposal |
+| **Mutator** | "Surgeon" — applies one focused change | Hypothesis, target file | Modified file + documentation |
+| **Scorer** | "Judge" — evaluates output quality (Skill Mode) | Eval prompt, output | Normalized quality score (0-1) |
 
-### Composite Score
+### Setup Wizard (6 Steps)
+
+| Step | Gate | Fail action |
+|------|------|------------|
+| 1. Identify target | File exists and is readable | Abort |
+| 2. Confirm mode | skill or generic, valid metric command | Abort |
+| 3. Load/create evals | ≥3 evals with train/test split (Skill Mode) | Create them |
+| 4. Measure baseline | Score > 0 or metric parseable | Abort |
+| 5. Dry-run validation | Exit code 0, output contains number | Abort |
+| 6. Create workspace | All dirs writable | Abort |
+
+### Composite Score (Skill Mode)
 
 ```
 composite = assertion_pass_rate × 0.80 + efficiency_score × 0.20
@@ -78,20 +116,19 @@ Copy the `skill-forge/` directory into your Claude Cowork skills folder:
 ~/.skills/skills/skill-forge/
 ```
 
-### 2. Use it
+### 2. Use it (Skill Mode)
 
 Tell Claude:
 
 > "Use skill-forge to improve my linkedin-content skill"
 
-Skill Forge will:
-1. Read the target skill
-2. Create evals if none exist
-3. Measure baseline score
-4. Run the experiment loop
-5. Deliver the improved SKILL.md + morning report
+### 3. Use it (Generic Mode)
 
-### 3. Run overnight (Scheduled Task)
+Tell Claude:
+
+> "Use skill-forge to optimize train.py — metric command: python train.py --eval, direction: lower_is_better"
+
+### 4. Run overnight (Scheduled Task)
 
 ```
 Use the skill-forge skill to run the autonomous improvement
@@ -106,19 +143,20 @@ Time budget: 120 minutes
 
 ```
 skill-forge/
-├── SKILL.md                          # Main skill instructions
+├── SKILL.md                          # Main skill instructions (v2)
+├── RELEASE_NOTES.md                  # v2 changelog
 ├── agents/
 │   ├── hypothesis.md                 # Failure analysis → hypothesis
-│   ├── mutator.md                    # Hypothesis → SKILL.md mutation
+│   ├── mutator.md                    # Hypothesis → file mutation
 │   └── scorer.md                     # LLM-as-Judge quality scoring
 ├── scripts/
 │   ├── __init__.py
-│   └── composite_score.py            # Score calculation (CLI + library)
+│   └── composite_score.py            # Score, TSV, coverage (CLI + library)
 ├── templates/
-│   └── morning_report.md             # Report template
+│   └── morning_report.md             # Report template with coverage matrix
 ├── references/
 │   ├── architecture.md               # Detailed architecture docs
-│   └── scheduled_task_template.md    # Cron job setup
+│   └── scheduled_task_template.md    # Cron job setup (both modes)
 ├── examples/
 │   └── fachbuch-lektorat-session.md  # Real experiment log
 ├── LICENSE                           # MIT
@@ -128,10 +166,11 @@ skill-forge/
 ## Workspace structure (generated per run)
 
 ```
-<skill>-autoresearch/
-├── config.json              # Session tag, parameters
-├── evals/
-│   └── evals.json           # Test cases with train/test split
+<target>-autoresearch/
+├── config.json              # Mode, parameters, session tag
+├── evals.json               # Test cases with train/test split (Skill Mode)
+├── experiment-log.tsv       # Flat TSV log (NEW in v2)
+├── coverage-matrix.json     # Category coverage tracking (NEW in v2)
 ├── snapshots/
 │   ├── v0/SKILL.md          # Baseline
 │   ├── v1/SKILL.md          # After exp-001
@@ -140,13 +179,43 @@ skill-forge/
 │   ├── exp-001/
 │   │   ├── hypothesis.json
 │   │   ├── mutation.json
-│   │   ├── run.log          # Full transcript
-│   │   ├── grading_results.json
-│   │   └── crash.log        # If applicable
+│   │   ├── grading.json
+│   │   ├── decision.json
+│   │   └── runs/            # Eval outputs
 │   └── ...
 ├── history.json             # Score progression
 └── morning-report.md        # Human-readable summary
 ```
+
+## Key features
+
+### TSV Experiment Log
+
+Every experiment is logged as a single tab-separated line for quick `tail -f` monitoring:
+
+```
+timestamp  experiment  hypothesis_summary  before  after  delta  decision  category
+```
+
+### Coverage Matrix
+
+Tracks which categories of improvements have been tried, with saturation detection:
+
+```
+| Category       | Experiments | KEEP | REVERT | Best Delta | Saturated |
+|----------------|-------------|------|--------|------------|-----------|
+| workflow        | 3           | 2    | 1      | +0.16      | no        |
+| edge_cases      | 1           | 0    | 0      | ±0.00      | no        |
+| formatting      | 0           | -    | -      | -          | untouched |
+```
+
+### Exploration-Exploitation Strategy
+
+| Phase | Rounds | Strategy |
+|-------|--------|----------|
+| Early | 1-3 | Explore: prioritize untouched categories |
+| Mid | 4-7 | Mixed: balance coverage with promising areas |
+| Late | 8+ | Exploit: focus on categories with best deltas |
 
 ## Overfitting protection
 
@@ -154,7 +223,7 @@ skill-forge/
 |-----------|-------------|
 | **Train/Test Split** | 60% evals for hypothesis, 40% held-out for scoring |
 | **Generalization Check** | Hypothesis agent must explain why change generalizes |
-| **Mutation Diversity** | Tracks which sections were already mutated |
+| **Mutation Diversity** | Coverage matrix tracks which categories were tried |
 | **Eval Rotation** | After 5 experiments, generate fresh eval queries |
 | **Regression Test** | Test evals never used for analysis, only scoring |
 
@@ -166,27 +235,36 @@ If an eval run crashes (timeout, script error, API failure):
 2. Script bug in target skill → score as 0 (mutation broke it)
 3. Infrastructure error → retry once, then skip
 4. Eval bug → exclude from scoring, log the issue
-5. Continue with next eval — one crash doesn't kill the run
+5. After 3 consecutive crashes → pause and report
+6. Continue with next eval — one crash doesn't kill the run
 
 ## Configuration
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
+| `mode` | skill | `skill` or `generic` |
 | `max_experiments` | 10 | Maximum experiment count |
 | `improvement_threshold` | 0.02 | Minimum delta to keep |
 | `regression_threshold` | 0.05 | Maximum delta before revert |
 | `time_budget_minutes` | 120 | Time budget (for scheduled tasks) |
 | `eval_split` | 0.6/0.4 | Train/test split ratio |
 | `use_comparator` | false | Enable blind A/B comparison |
-| `parallel_evals` | true | Run evals in parallel |
+| `metric_command` | — | Shell command returning a number (Generic Mode) |
+| `metric_direction` | higher_is_better | `higher_is_better` or `lower_is_better` |
+| `consecutive_crash_limit` | 3 | Max crashes before pause |
 
 ## Real-world results
 
-Tested on two skills:
+Tested on three skills:
+
+**humanizer** (text humanization):
+- 3 experiments, 0.74 → 0.90 composite score (+21.6%)
+- Key fix: Personality as a dedicated workflow step with concrete criteria
+- Held-out test confirmed generalization on unseen LinkedIn post
 
 **fachbuch-lektorat** (German technical book editing):
 - 3 experiments, 87% → 100% assertion pass rate
-- Key fix: Worked example for mixed wir/ich handling (abstract rules weren't enough)
+- Key fix: Worked example for mixed wir/ich handling
 
 **was-bisher-geschah** (AI news briefing):
 - 1 experiment, 93% → 100% assertion pass rate
@@ -198,6 +276,6 @@ MIT License — see [LICENSE](LICENSE).
 
 ## Acknowledgments
 
-Inspired by [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch) — an autonomous ML experiment loop where an AI agent modifies `train.py`, trains for 5 minutes, and keeps or discards changes based on validation loss. Skill Forge adapts this paradigm from LLM training code to natural-language skill instructions.
+Inspired by [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch) — an autonomous ML experiment loop where an AI agent modifies `train.py`, trains for 5 minutes, and keeps or discards changes based on validation loss. Skill Forge adapts this paradigm from LLM training code to natural-language skill instructions and generic codebases.
 
 Copyright (c) 2026 Mark Zimmermann
