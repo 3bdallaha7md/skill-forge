@@ -199,3 +199,5 @@ MIT License — see [LICENSE](LICENSE).
 ## Acknowledgments
 
 Inspired by [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch) — an autonomous ML experiment loop where an AI agent modifies `train.py`, trains for 5 minutes, and keeps or discards changes based on validation loss. Skill Forge adapts this paradigm from LLM training code to natural-language skill instructions.
+
+Copyright (c) 2026 Mark Zimmermann
