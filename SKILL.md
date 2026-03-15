@@ -1,28 +1,56 @@
 ---
-name: autoresearch-skills
+name: skill-forge
 description: >
   Autonome Verbesserung nach dem Autoresearch-Paradigma (Karpathy). Zwei Modi:
   (1) Skill-Modus — optimiert eine SKILL.md durch iterative Mutation und Evaluation.
   (2) Generic-Modus — optimiert beliebige Dateien gegen jede mechanische Metrik
   (Testabdeckung, Bundle-Size, Lighthouse-Score, Docker-Image-Größe, etc.).
-  Führt einen automatischen Experiment-Loop durch: analysieren → Hypothese bilden →
-  mutieren → verifizieren → Score messen → keep/revert → wiederholen. Kann über
-  Nacht als Scheduled Task laufen und liefert morgens einen Experiment-Report. IMMER
-  verwenden bei: Skill autonom verbessern, Skill optimieren ohne manuelles Feedback,
-  Autoresearch, autonomer Verbesserungsloop, Skill-Evolution, overnight optimization,
-  Skill-Experiment, "lass den Skill über Nacht besser werden", Skill-Score verbessern,
-  automatische Skill-Iteration, Code-Metrik verbessern, Testabdeckung erhöhen,
-  Bundle-Size reduzieren, Performance-Score optimieren, beliebige Metrik optimieren.
+  Zwei Ausführungsmodi: Auto (vollautonomer Loop, ideal für Overnight-Runs) und
+  Guided (interaktiv, User entscheidet bei jedem Schritt mit). Führt einen
+  Experiment-Loop durch: analysieren → Hypothese bilden → mutieren → verifizieren →
+  Score messen → keep/revert → wiederholen. Kann über Nacht als Scheduled Task
+  laufen und liefert morgens einen Experiment-Report. IMMER verwenden bei: Skill
+  autonom verbessern, Skill optimieren ohne manuelles Feedback, Skill optimieren
+  mit Feedback, Autoresearch, autonomer Verbesserungsloop, Skill-Evolution,
+  overnight optimization, Skill-Experiment, "lass den Skill über Nacht besser
+  werden", Skill-Score verbessern, automatische Skill-Iteration, Code-Metrik
+  verbessern, Testabdeckung erhöhen, Bundle-Size reduzieren, Performance-Score
+  optimieren, beliebige Metrik optimieren, "hilf mir den Skill zu verbessern",
+  Skill interaktiv verbessern, geführte Optimierung.
 ---
 
-# Autoresearch
+# Skill Forge
 
-Autonome, iterative Verbesserung nach dem Autoresearch-Paradigma: Ein AI-Agent
-modifiziert gezielt Dateien, evaluiert jede Änderung gegen eine mechanische Metrik,
-behält Verbesserungen und verwirft Verschlechterungen — ohne menschliches Feedback
-im Loop.
+Iterative Verbesserung nach dem Autoresearch-Paradigma: Ein AI-Agent modifiziert
+gezielt Dateien, evaluiert jede Änderung gegen eine mechanische Metrik, behält
+Verbesserungen und verwirft Verschlechterungen.
 
-## Zwei Modi
+## Ausführungsmodi
+
+| | Auto-Modus | Guided-Modus |
+|---|---|---|
+| **Ablauf** | Vollautonomer Loop ohne User-Eingriff | User entscheidet an jedem Checkpoint |
+| **Ideal für** | Overnight-Runs, Scheduled Tasks | Erstmalige Nutzung, Domänenwissen einbringen |
+| **Evals** | Automatisch generiert | User prüft und passt an |
+| **Hypothesen** | Automatisch umgesetzt | User sieht Vorschlag, kann ablehnen/anpassen |
+| **Mutationen** | Automatisch angewendet | User sieht Diff, bestätigt oder korrigiert |
+| **Keep/Revert** | Automatisch nach Schwellenwerten | User entscheidet mit Score als Empfehlung |
+| **Wann wählen** | Vertrautes Setup, bewährte Evals | Neuer Skill, unsichere Evals, Lernmodus |
+
+Der Wizard fragt als ersten Schritt: **"Auto oder Guided?"**
+
+Im Guided-Modus gibt es 5 Checkpoints, an denen der User einbezogen wird:
+
+1. **Evals prüfen** — User sieht generierte Evals, kann anpassen/ergänzen/streichen, Anzahl und Gewichtung bestimmen
+2. **Hypothese prüfen** — User sieht die Hypothese und kann sie ablehnen, anpassen oder eine eigene Richtung vorgeben
+3. **Mutation prüfen** — User sieht das Diff vor Anwendung und bestätigt
+4. **Ergebnis bewerten** — User sieht Score + Delta und entscheidet: Keep, Revert oder manuell anpassen
+5. **Weitermachen?** — User entscheidet ob eine weitere Runde laufen soll oder der Loop endet
+
+Im Auto-Modus werden alle 5 Checkpoints übersprungen und die Entscheidungen
+automatisch nach den konfigurierten Schwellenwerten getroffen.
+
+## Zwei Domänen-Modi
 
 | | Skill-Modus | Generic-Modus |
 |---|---|---|
@@ -57,11 +85,18 @@ Inspiriert von Karpathys autoresearch-Paradigma:
 Der Setup-Wizard führt schrittweise durch die Konfiguration. Jeder Schritt hat ein
 Abnahmekriterium — der Wizard geht erst weiter, wenn die Validierung bestanden ist.
 
-### Wizard-Schritt 1: Modus und Ziel erfassen
+### Wizard-Schritt 1: Ausführungsmodus, Domänenmodus und Ziel erfassen
 
-Frage den User: **"Was willst du verbessern?"**
+Frage den User zwei Dinge:
 
-Bestimme daraus den Modus:
+**1. "Auto oder Guided?"**
+- **Auto**: "Ich lasse den Loop laufen und schaue mir morgens den Report an"
+- **Guided**: "Ich will bei jedem Schritt mitentscheiden"
+- Bei Scheduled Tasks: Immer Auto (Guided nicht möglich ohne User)
+
+**2. "Was willst du verbessern?"**
+
+Bestimme daraus den Domänenmodus:
 - User nennt einen Skill-Namen → **Skill-Modus**
 - User nennt eine Metrik, einen Shell-Command oder Code-Dateien → **Generic-Modus**
 - Unklar → Nachfragen
@@ -69,6 +104,7 @@ Bestimme daraus den Modus:
 Speichere:
 ```json
 {
+  "execution_mode": "auto" | "guided",
   "mode": "skill" | "generic",
   "goal": "Freitext-Beschreibung des Ziels",
   "target": "Skill-Name oder Projekt-Pfad"
@@ -104,6 +140,14 @@ Speichere:
 - Achte auf Train/Test-Split (60/40) für Overfitting-Schutz
 - Metrik = Composite Score (automatisch)
 
+**🔀 Guided-Checkpoint 1: Evals prüfen (nur Skill-Modus)**
+
+Im Guided-Modus: Zeige dem User die generierten/vorhandenen Evals und frage:
+- "Das sind die Testfälle. Passen sie?"
+- User kann: Evals anpassen, neue hinzufügen, Gewichtung ändern, Anzahl bestimmen
+- User kann auch beschreiben: "Ich will dass besonders X getestet wird"
+- Erst nach User-Bestätigung wird der Train/Test-Split durchgeführt
+
 **Generic-Modus:**
 - Frage: "Welcher Shell-Command misst deine Metrik?"
 - Beispiele anbieten:
@@ -114,6 +158,11 @@ Speichere:
   - Python-Lint-Fehler: `flake8 src/ | wc -l`
 - Validierung: Subjektive Metriken ("sieht besser aus", "klingt natürlicher") werden abgelehnt.
   Die Metrik muss eine einzelne parsbare Zahl produzieren.
+- Hinweis: Der Metrik-Parser extrahiert die **letzte Zahl** im Command-Output.
+  Falls der Command Fortschrittsmeldungen oder Zeilennummern ausgibt, sollte
+  der User den Output so filtern, dass nur die relevante Zahl am Ende steht
+  (z.B. mit `| tail -1` oder `| grep "Score"`).
+
 
 Speichere:
 ```json
@@ -234,6 +283,13 @@ Lies den `agents/hypothesis.md` Agent-Prompt und folge seinen Anweisungen:
 **Wichtig:** Generalisiere! Nicht auf einzelne Testfälle optimieren, sondern auf
 die zugrunde liegenden Muster.
 
+**🔀 Guided-Checkpoint 2: Hypothese prüfen**
+
+Im Guided-Modus: Zeige dem User die Hypothese und frage:
+- "Soll ich diese Hypothese testen?"
+- Optionen: **Ja** / **Anpassen** (User gibt Richtung vor) / **Andere Idee** (User beschreibt eigene Hypothese) / **Überspringen** (nächste Kategorie)
+- Falls der User eine eigene Hypothese formuliert, verwende diese statt der generierten.
+
 ### Schritt 2: Mutation anwenden
 
 Lies den `agents/mutator.md` Agent-Prompt und folge seinen Anweisungen:
@@ -245,6 +301,12 @@ Lies den `agents/mutator.md` Agent-Prompt und folge seinen Anweisungen:
 3. Mache **eine fokussierte Änderung** pro Experiment (nicht 5 gleichzeitig)
    - Das ist entscheidend: Nur so weißt du, welche Änderung den Score beeinflusst hat
 4. Dokumentiere die Änderung im Experiment-Log
+
+**🔀 Guided-Checkpoint 3: Mutation prüfen**
+
+Im Guided-Modus: Zeige dem User das Diff der geplanten Änderung und frage:
+- "So würde die Änderung aussehen. Anwenden?"
+- Optionen: **Ja, anwenden** / **Anpassen** (User korrigiert das Diff) / **Verwerfen** (Hypothese überspringen)
 
 ### Schritt 3: Experiment laufen lassen
 
@@ -302,6 +364,14 @@ Schwellenwerte:
 - `IMPROVEMENT_THRESHOLD = 0.02` (2% Verbesserung nötig zum Behalten)
 - `REGRESSION_THRESHOLD = 0.05` (5% Verschlechterung → sofort revert)
 
+**🔀 Guided-Checkpoint 4: Ergebnis bewerten**
+
+Im Guided-Modus: Zeige dem User Score + Delta und die automatische Empfehlung:
+- "Score: 0.78 → 0.84 (+0.06). Empfehlung: KEEP. Einverstanden?"
+- Optionen: **Keep** / **Revert** (trotz Verbesserung zurück) / **Manuell anpassen** (User ändert die Mutation von Hand)
+- Der User kann also die automatische Entscheidung überstimmen — z.B. KEEP obwohl
+  der Score leicht gefallen ist, weil er weiß, dass die Änderung langfristig besser ist.
+
 **Nach jeder Entscheidung — zwei Logs aktualisieren:**
 
 1. **history.json** (strukturiert, für programmatische Auswertung):
@@ -342,12 +412,20 @@ besonders nützlich für nächtliche Runs, wo man sofort sehen will ob der Loop 
 
 Gehe zurück zu Schritt 1 mit der neuen Baseline.
 
-**Abbruchkriterien:**
+**🔀 Guided-Checkpoint 5: Weitermachen?**
+
+Im Guided-Modus: Zeige dem User den bisherigen Fortschritt (Score-Verlauf, Coverage) und frage:
+- "Runde N abgeschlossen. Score: 0.62 → 0.84. Weitermachen?"
+- Optionen: **Ja, weiter** / **Noch N Runden** (User gibt Anzahl an) / **Stopp, Report generieren**
+- Der User kann den Loop also jederzeit beenden, auch vor max_experiments.
+
+**Abbruchkriterien (Auto-Modus und als Empfehlung im Guided-Modus):**
 - `composite_score >= 0.95` (Skill-Modus) oder Zielwert erreicht (Generic-Modus) → Ziel erreicht
 - `max_experiments` erreicht (Standard: 10)
 - 3 aufeinanderfolgende NEUTRAL/REVERT → Plateau erreicht
 - Zeitbudget aufgebraucht (für Scheduled Tasks)
-- 2 aufeinanderfolgende CRASH → Infrastruktur-Problem, Loop stoppen
+- 3 aufeinanderfolgende CRASH → Infrastruktur-Problem, Loop stoppen
+- Guided-Modus: User sagt "Stopp"
 
 ### Schritt 7: Report generieren
 
@@ -450,6 +528,7 @@ Standardwerte, die der User überschreiben kann:
 
 | Parameter | Default | Beschreibung |
 |-----------|---------|--------------|
+| `execution_mode` | auto | `auto` (vollautonomer Loop) oder `guided` (interaktiv mit User-Checkpoints) |
 | `mode` | auto | `skill`, `generic` oder `auto` (erkennt automatisch) |
 | `max_experiments` | 10 | Maximale Anzahl Experimente |
 | `improvement_threshold` | 0.02 | Minimum-Delta zum Behalten |
@@ -459,7 +538,7 @@ Standardwerte, die der User überschreiben kann:
 | `use_comparator` | false | Blind-Comparison aktivieren (teurer, nur Skill-Modus) |
 | `parallel_evals` | true | Evals parallel laufen lassen (nur Skill-Modus) |
 | `target_value` | null | Zielwert für die Metrik (nur Generic-Modus) |
-| `max_crashes` | 2 | Max aufeinanderfolgende Crashes vor Abbruch |
+| `max_crashes` | 3 | Max aufeinanderfolgende Crashes vor Abbruch |
 
 ---
 
@@ -471,7 +550,7 @@ Dieser Skill kann als nächtlicher Scheduled Task laufen. Dafür:
 2. Claude erstellt einen Scheduled Task mit dem Prompt:
 
 ```
-Lies den autoresearch-skills Skill und führe den autonomen
+Lies den skill-forge Skill und führe den autonomen
 Verbesserungsloop durch.
 
 Workspace: <workspace-path>
@@ -503,24 +582,26 @@ Gegenmaßnahmen:
    lassen und den Test-Split rotieren
 5. **Regressions-Test**: Die Held-out Evals werden nie für Hypothesenbildung genutzt,
    nur für Score-Berechnung
-6. **Crash-Erkennung**: 2 aufeinanderfolgende Crashes stoppen den Loop statt endlos
+6. **Crash-Erkennung**: 3 aufeinanderfolgende Crashes stoppen den Loop statt endlos
    zu wiederholen
 
 ---
 
 ## Abhängigkeiten
 
-Dieser Skill nutzt Infrastruktur aus dem `skill-creator` (nur im Skill-Modus):
+**Standalone-Betrieb (Standard):** Skill Forge funktioniert eigenständig. Die drei
+mitgelieferten Agents (`hypothesis.md`, `mutator.md`, `scorer.md`) decken den
+gesamten Loop ab. Im Skill-Modus übernimmt der Scorer-Agent auch das Grading
+der Assertions. Im Generic-Modus wird kein Agent zum Bewerten benötigt — der
+Metrik-Command liefert die Zahl direkt.
 
-- `agents/grader.md` — Evaluiert Assertions gegen Outputs
-- `agents/comparator.md` — Blind A/B-Vergleich (optional)
-- `agents/analyzer.md` — Post-hoc Analyse
+**Optionale Erweiterung mit `skill-creator`:** Falls der `skill-creator`-Skill
+installiert ist, kann Skill Forge dessen spezialisierte Agents nutzen:
 
-Stelle sicher, dass der skill-creator verfügbar ist, oder kopiere die
-benötigten Agent-Prompts in den eigenen `agents/` Ordner.
+- `agents/comparator.md` — Blind A/B-Vergleich (aktiviert mit `use_comparator: true`)
+- `agents/analyzer.md` — Tiefere Post-hoc Analyse der Experiment-Ergebnisse
 
-Im Generic-Modus werden keine externen Abhängigkeiten benötigt — der
-Metrik-Command läuft direkt im System.
+Diese sind optional und nicht erforderlich für den normalen Betrieb.
 
 ---
 

@@ -1,6 +1,6 @@
 # Skill Forge v2
 
-Autonomous improvement of AI skills and generic codebases through iterative experimentation. An AI agent modifies instructions or code, evaluates each change against objective metrics, keeps improvements, and reverts regressions — no human feedback in the loop.
+Autonomous improvement of AI skills and generic codebases through iterative experimentation. An AI agent modifies instructions or code, evaluates each change against objective metrics, keeps improvements, and reverts regressions. Runs fully autonomous or in guided mode where the user decides at every step.
 
 ## What it does
 
@@ -29,6 +29,7 @@ You point it at a skill or codebase, it finds weaknesses, fixes them, and delive
 - **Coverage Matrix**: Tracks experiment distribution across categories with saturation detection
 - **Exploration-Exploitation Balance**: Early rounds explore untouched categories, late rounds exploit successful ones
 - **Improved Crash Handling**: Consecutive crash limit with SKIP path
+- **Guided Mode**: Interactive execution where the user reviews and decides at 5 checkpoints (evals, hypothesis, mutation, scoring, continue)
 
 ## How it works
 
@@ -116,19 +117,25 @@ Copy the `skill-forge/` directory into your Claude Cowork skills folder:
 ~/.skills/skills/skill-forge/
 ```
 
-### 2. Use it (Skill Mode)
+### 2. Use it (Skill Mode, Auto)
 
 Tell Claude:
 
 > "Use skill-forge to improve my linkedin-content skill"
 
-### 3. Use it (Generic Mode)
+### 3. Use it (Guided Mode)
+
+Tell Claude:
+
+> "Use skill-forge in guided mode to improve my humanizer skill — I want to decide at each step"
+
+### 4. Use it (Generic Mode)
 
 Tell Claude:
 
 > "Use skill-forge to optimize train.py — metric command: python train.py --eval, direction: lower_is_better"
 
-### 4. Run overnight (Scheduled Task)
+### 5. Run overnight (Scheduled Task)
 
 ```
 Use the skill-forge skill to run the autonomous improvement
@@ -242,6 +249,7 @@ If an eval run crashes (timeout, script error, API failure):
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
+| `execution_mode` | auto | `auto` (fully autonomous) or `guided` (interactive with 5 checkpoints) |
 | `mode` | skill | `skill` or `generic` |
 | `max_experiments` | 10 | Maximum experiment count |
 | `improvement_threshold` | 0.02 | Minimum delta to keep |
@@ -251,7 +259,7 @@ If an eval run crashes (timeout, script error, API failure):
 | `use_comparator` | false | Enable blind A/B comparison |
 | `metric_command` | — | Shell command returning a number (Generic Mode) |
 | `metric_direction` | higher_is_better | `higher_is_better` or `lower_is_better` |
-| `consecutive_crash_limit` | 3 | Max crashes before pause |
+| `max_crashes` | 3 | Max consecutive crashes before pause |
 
 ## Real-world results
 

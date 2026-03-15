@@ -99,6 +99,7 @@ mechanische Metrik + autonome Iteration = kumulativer Gewinn — bleibt identisc
 
 ```json
 {
+  "execution_mode": "auto",
   "mode": "skill",
   "goal": "LinkedIn-Content-Skill verbessern",
   "target": "linkedin-content",
@@ -119,7 +120,7 @@ mechanische Metrik + autonome Iteration = kumulativer Gewinn — bleibt identisc
   "use_comparator": false,
   "parallel_evals": true,
   "target_value": null,
-  "max_crashes": 2
+  "max_crashes": 3
 }
 ```
 
@@ -265,6 +266,43 @@ Der Task:
 3. Führt Experimente bis zum Zeitbudget durch
 4. Generiert den Morning Report
 5. Beendet sich
+
+## Ausführungsmodi: Auto vs. Guided
+
+Der `execution_mode` bestimmt, ob der Loop autonom oder interaktiv abläuft:
+
+```
+Auto-Modus:     Wizard → Dry-Run → [Loop ohne Pause] → Report
+Guided-Modus:   Wizard → Dry-Run → [Loop mit 5 Checkpoints] → Report
+```
+
+### Guided-Modus Checkpoints
+
+```
+┌────────────────────────────────────────────────────────┐
+│  Guided-Modus: 5 Checkpoints im Loop                  │
+│                                                        │
+│  CP1: Evals prüfen (einmalig, nach Wizard-Schritt 3)  │
+│       → User passt Evals an, bestimmt Anzahl/Gewicht   │
+│                                                        │
+│  CP2: Hypothese prüfen (jede Runde)                    │
+│       → User bestätigt, passt an oder gibt eigene vor   │
+│                                                        │
+│  CP3: Mutation prüfen (jede Runde)                     │
+│       → User sieht Diff, bestätigt oder korrigiert      │
+│                                                        │
+│  CP4: Ergebnis bewerten (jede Runde)                   │
+│       → User sieht Score/Delta, kann Empfehlung         │
+│         überstimmen (Keep/Revert/Manuell)               │
+│                                                        │
+│  CP5: Weitermachen? (jede Runde)                       │
+│       → User entscheidet: weiter / N Runden / stopp     │
+└────────────────────────────────────────────────────────┘
+```
+
+Im Auto-Modus werden alle Checkpoints übersprungen. Die config.json speichert
+den Modus als `"execution_mode": "auto"` oder `"guided"`. Scheduled Tasks
+verwenden immer `auto` (kein User-Prompt verfügbar).
 
 ## Limitierungen
 

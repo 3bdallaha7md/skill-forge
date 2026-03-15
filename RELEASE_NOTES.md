@@ -1,4 +1,4 @@
-# Release Notes — autoresearch-skills v2.0
+# Release Notes — Skill Forge v2.0
 
 ## Überblick
 
@@ -72,6 +72,32 @@ intensiv bearbeitet wurden:
 
 Der Hypothesis-Agent nutzt die Matrix aktiv für die Priorisierung und dokumentiert
 seine Entscheidung im `coverage_rationale`-Feld.
+
+### 6. Guided-Modus (interaktive Ausführung)
+
+Neuer `execution_mode`-Parameter mit zwei Optionen:
+
+- **Auto** (Standard): Vollautonomer Loop — perfekt für Overnight-Runs und Scheduled Tasks
+- **Guided**: Interaktiver Loop mit 5 Checkpoints, an denen der User mitentscheidet
+
+Im Guided-Modus pausiert der Loop an diesen Stellen:
+
+1. **Evals prüfen** — User sieht und passt generierte Evals an (Anzahl, Gewichtung, Inhalt)
+2. **Hypothese prüfen** — User bestätigt, passt an oder gibt eigene Hypothese vor
+3. **Mutation prüfen** — User sieht Diff und bestätigt oder korrigiert
+4. **Ergebnis bewerten** — User sieht Score/Delta und kann Empfehlung überstimmen
+5. **Weitermachen?** — User entscheidet: weiter, N Runden, oder stopp
+
+Der Guided-Modus ist ideal für die erste Nutzung mit einem neuen Skill, wenn
+Domänenwissen eingebracht werden soll, oder um Vertrauen in den Loop aufzubauen
+bevor man ihn autonom über Nacht laufen lässt.
+
+### Bugfixes und Konsistenz
+
+- Crash-Limit einheitlich auf 3 gesetzt (war inkonsistent 2/3)
+- Skill-Name durchgehend auf `skill-forge` korrigiert
+- Abhängigkeit zum `skill-creator` als optional deklariert (Standalone-Betrieb funktioniert)
+- Einschränkung des Metrik-Parsers (letzte Zahl im Output) dokumentiert
 
 ## Geänderte Dateien
 

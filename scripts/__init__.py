@@ -1,1 +1,1 @@
-# autoresearch-skills scripts
+# skill-forge scripts

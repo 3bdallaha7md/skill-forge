@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Composite Score Berechnung und TSV-Logging für autoresearch-skills.
+"""Composite Score Berechnung und TSV-Logging für Skill Forge.
 
 Berechnet einen gewichteten Score aus:
 - Assertion Pass Rate (50%)
