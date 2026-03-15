@@ -398,7 +398,7 @@ def score_from_experiment_dir(experiment_dir: str, use_comparator: bool = False)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Autoresearch Scoring & Logging")
+    parser = argparse.ArgumentParser(description="Skill Forge — Scoring & Logging")
     subparsers = parser.add_subparsers(dest="command", help="Verfügbare Befehle")
 
     # Score-Berechnung (Skill-Modus)

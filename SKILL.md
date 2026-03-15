@@ -244,7 +244,7 @@ Der User kann Parameter anpassen oder den Loop starten.
 Nach Bestätigung:
 
 ```
-<target>-autoresearch/
+<target>-skill-forge/
 ├── config.json            # Wizard-Konfiguration
 ├── evals.json             # Testfälle (nur Skill-Modus)
 ├── history.json            # Fortschritts-Tracking
@@ -265,7 +265,7 @@ Speichere die Baseline:
 
 ---
 
-## Der Autoresearch-Loop
+## Der Experiment-Loop
 
 ### Schritt 1: Hypothese bilden
 

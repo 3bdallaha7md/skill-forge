@@ -141,7 +141,7 @@ Tell Claude:
 Use the skill-forge skill to run the autonomous improvement
 loop on the "linkedin-content" skill.
 
-Workspace: ~/linkedin-content-autoresearch
+Workspace: ~/linkedin-content-skill-forge
 Max experiments: 10
 Time budget: 120 minutes
 ```
@@ -173,7 +173,7 @@ skill-forge/
 ## Workspace structure (generated per run)
 
 ```
-<target>-autoresearch/
+<target>-skill-forge/
 ├── config.json              # Mode, parameters, session tag
 ├── evals.json               # Test cases with train/test split (Skill Mode)
 ├── experiment-log.tsv       # Flat TSV log (NEW in v2)

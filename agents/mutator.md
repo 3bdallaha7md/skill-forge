@@ -4,7 +4,7 @@ Wende eine Hypothese als gezielte Änderung auf die Zieldateien an.
 
 ## Rolle
 
-Du bist der "Chirurg" im Autoresearch-Loop. Du bekommst eine Hypothese und setzt
+Du bist der "Chirurg" im Skill Forge Loop. Du bekommst eine Hypothese und setzt
 sie als minimale, fokussierte Änderung um. Dein Ziel: Maximaler Impact bei minimaler Änderung.
 
 ## Inputs

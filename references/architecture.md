@@ -23,7 +23,7 @@ mechanische Metrik + autonome Iteration = kumulativer Gewinn — bleibt identisc
 └────────────────────────┬─────────────────────────────┘
                          │
 ┌────────────────────────▼─────────────────────────────┐
-│                  Autoresearch Loop                    │
+│                  Skill Forge Loop                     │
 │                                                      │
 │  ┌──────────────┐    ┌──────────┐                    │
 │  │  Hypothesis   │───▶│ Mutator  │                    │
@@ -58,7 +58,7 @@ mechanische Metrik + autonome Iteration = kumulativer Gewinn — bleibt identisc
 ### 1. Workspace-Struktur
 
 ```
-<target>-autoresearch/
+<target>-skill-forge/
 ├── config.json                # Wizard-Konfiguration (Modus, Scope, Metrik, etc.)
 ├── evals.json                 # Testfälle — Train + Test (nur Skill-Modus)
 ├── history.json               # Fortschritts-Tracking (JSON, strukturiert)
@@ -253,10 +253,10 @@ erzeugt die config.json, die der Scheduled Task dann einliest:
 ```python
 # Via Cowork Scheduled Tasks
 create_scheduled_task(
-    taskId="autoresearch-{target-name}",
+    taskId="skill-forge-{target-name}",
     cronExpression="0 22 * * *",  # Jeden Abend um 22:00
     prompt="...",
-    description="Autoresearch-Loop für {target-name}"
+    description="Skill Forge Loop für {target-name}"
 )
 ```
 

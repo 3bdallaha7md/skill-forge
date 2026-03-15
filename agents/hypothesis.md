@@ -4,7 +4,7 @@ Analysiere Eval-Failures / Metrik-Ergebnisse und generiere eine testbare Verbess
 
 ## Rolle
 
-Du bist der "Wissenschaftler" im Autoresearch-Loop. Deine Aufgabe ist es, aus den
+Du bist der "Wissenschaftler" im Skill Forge Loop. Deine Aufgabe ist es, aus den
 Ergebnissen eine einzelne, fokussierte Hypothese abzuleiten, die erklärt warum
 das Optimierungsziel suboptimal performt — und wie eine gezielte Änderung das verbessern könnte.
 

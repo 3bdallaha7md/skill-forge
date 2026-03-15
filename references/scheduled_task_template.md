@@ -1,4 +1,4 @@
-# Scheduled Task Template für Autoresearch
+# Scheduled Task Template für Skill Forge
 
 ## Task-Prompt (Template)
 
@@ -25,16 +25,16 @@ Lies den Skill 'skill-forge' und führe den autonomen Verbesserungsloop durch.
 ## Beispiel: Skill-Modus Scheduled Task
 
 ```python
-# Täglicher Autoresearch-Run um 22:00
+# Täglicher Skill Forge Run um 22:00
 create_scheduled_task(
-    taskId="autoresearch-linkedin-content",
+    taskId="skill-forge-linkedin-content",
     cronExpression="0 22 * * *",
-    description="Autoresearch-Loop für linkedin-content Skill",
+    description="Skill Forge Loop für linkedin-content Skill",
     prompt="""Lies den Skill 'skill-forge' und führe den autonomen Verbesserungsloop durch.
 
 ## Konfiguration
-- Workspace: /path/to/linkedin-content-autoresearch
-- Config: /path/to/linkedin-content-autoresearch/config.json
+- Workspace: /path/to/linkedin-content-skill-forge
+- Config: /path/to/linkedin-content-skill-forge/config.json
 
 ## Anweisungen
 1. Lies die SKILL.md des skill-forge Skills
@@ -51,14 +51,14 @@ create_scheduled_task(
 ```python
 # Wöchentliche Bundle-Size-Optimierung
 create_scheduled_task(
-    taskId="autoresearch-bundle-size",
+    taskId="skill-forge-bundle-size",
     cronExpression="0 22 * * 0",  # Sonntags um 22:00
-    description="Autoresearch-Loop für Bundle-Size-Optimierung",
+    description="Skill Forge Loop für Bundle-Size-Optimierung",
     prompt="""Lies den Skill 'skill-forge' und führe den autonomen Verbesserungsloop durch.
 
 ## Konfiguration
-- Workspace: /path/to/project-bundle-autoresearch
-- Config: /path/to/project-bundle-autoresearch/config.json
+- Workspace: /path/to/project-bundle-skill-forge
+- Config: /path/to/project-bundle-skill-forge/config.json
 
 ## Anweisungen
 1. Lies die SKILL.md des skill-forge Skills
@@ -74,9 +74,9 @@ Für einen einzelnen Over-Night-Run statt einem regelmäßigen Schedule:
 
 ```python
 create_scheduled_task(
-    taskId="autoresearch-once-linkedin",
+    taskId="skill-forge-once-linkedin",
     fireAt="2026-03-14T22:00:00+01:00",
-    description="Einmaliger Autoresearch-Run für linkedin-content",
+    description="Einmaliger Skill Forge Run für linkedin-content",
     prompt="..."
 )
 ```
