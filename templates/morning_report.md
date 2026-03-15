@@ -1,4 +1,4 @@
-# Autoresearch Morning Report
+# Skill Forge — Morning Report
 
 > Generiert: {timestamp}
 > Modus: {mode}
@@ -63,4 +63,4 @@ Vollständiges Log: `{workspace_path}/experiment-log.tsv`
 
 ---
 
-*Generiert vom autoresearch Loop. Experiment-Logs unter: {workspace_path}/experiments/*
+*Generiert vom Skill Forge Loop. Experiment-Logs unter: {workspace_path}/experiments/*

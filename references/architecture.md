@@ -1,4 +1,4 @@
-# Autoresearch: Architektur
+# Skill Forge: Architektur
 
 ## Design-Philosophie
 

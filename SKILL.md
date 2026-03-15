@@ -223,7 +223,7 @@ Zeige dem User die vollständige Konfiguration:
 
 ```
 ═══════════════════════════════════════
-  Autoresearch-Konfiguration
+  Skill Forge — Konfiguration
 ═══════════════════════════════════════
   Modus:          Skill / Generic
   Ziel:           [Freitext]

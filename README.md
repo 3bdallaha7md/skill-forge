@@ -80,12 +80,12 @@ You point it at a skill or codebase, it finds weaknesses, fixes them, and delive
 
 | Step | Gate | Fail action |
 |------|------|------------|
-| 1. Identify target | File exists and is readable | Abort |
-| 2. Confirm mode | skill or generic, valid metric command | Abort |
-| 3. Load/create evals | ≥3 evals with train/test split (Skill Mode) | Create them |
-| 4. Measure baseline | Score > 0 or metric parseable | Abort |
-| 5. Dry-run validation | Exit code 0, output contains number | Abort |
-| 6. Create workspace | All dirs writable | Abort |
+| 1. Execution mode + target | Auto/Guided selected, target identified | Abort |
+| 2. Define scope | Glob matches ≥1 file (Generic) or SKILL.md found (Skill) | Retry pattern |
+| 3. Define metric | ≥3 evals with train/test split (Skill) or valid shell command (Generic) | Create evals / reject subjective metric |
+| 4. Set direction | higher\_is\_better or lower\_is\_better confirmed | Abort |
+| 5. Dry-run validation | Exit code 0, output contains parseable number | Suggest fix, retry |
+| 6. Confirm config | User reviews and approves full configuration | Adjust parameters |
 
 ### Composite Score (Skill Mode)
 
@@ -250,7 +250,7 @@ If an eval run crashes (timeout, script error, API failure):
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | `execution_mode` | auto | `auto` (fully autonomous) or `guided` (interactive with 5 checkpoints) |
-| `mode` | skill | `skill` or `generic` |
+| `mode` | auto | `skill`, `generic`, or `auto` (auto-detect) |
 | `max_experiments` | 10 | Maximum experiment count |
 | `improvement_threshold` | 0.02 | Minimum delta to keep |
 | `regression_threshold` | 0.05 | Maximum delta before revert |
