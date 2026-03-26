@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill Forge kennenlernen — Interaktiver Kurs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --color-deep-blue:#000099;
+  --color-impulse-orange:#FE8F11;
+  --color-warm-gray:#E4DAD4;
+  --color-bg:#FFFFFF;
+  --color-bg-warm:#F3EFEB;
+  --color-bg-code:#000066;
+  --color-text:#1A1A2E;
+  --color-text-secondary:#5C5A6B;
+  --color-text-muted:#9995A0;
+  --color-border:#E4DAD4;
+  --color-border-light:#EDE8E4;
+  --color-surface:#FFFFFF;
+  --color-surface-warm:#F8F5F2;
+  --color-accent:#FE8F11;
+  --color-accent-hover:#E57D00;
+  --color-accent-light:#FFF3E5;
+  --color-accent-muted:#FEB85C;
+  --color-success:#84C041;
+  --color-success-light:#EFF7E5;
+  --color-error:#CC0000;
+  --color-error-light:#FFE5E5;
+  --color-info:#1195EB;
+  --color-info-light:#E5F2FC;
+  --color-warning:#FDC83A;
+  --color-warning-light:#FFF9E5;
+  --color-actor-1:#000099;
+  --color-actor-2:#FE8F11;
+  --color-actor-3:#84C041;
+  --color-actor-4:#1195EB;
+  --color-actor-5:#5BE3D6;
+  --color-actor-6:#FDC83A;
+  --font-display:'Bricolage Grotesque',Georgia,serif;
+  --font-body:'DM Sans',-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono','Fira Code','Consolas',monospace;
+  --text-xs:.75rem;--text-sm:.875rem;--text-base:1rem;--text-lg:1.125rem;
+  --text-xl:1.25rem;--text-2xl:1.5rem;--text-3xl:1.875rem;--text-4xl:2.25rem;
+  --text-5xl:3rem;--text-6xl:3.75rem;
+  --leading-tight:1.15;--leading-snug:1.3;--leading-normal:1.6;--leading-loose:1.8;
+  --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
+  --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;
+  --space-12:3rem;--space-16:4rem;--space-20:5rem;--space-24:6rem;
+  --content-width:820px;--content-width-wide:1000px;--nav-height:50px;
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-full:9999px;
+  --shadow-sm:0 1px 2px rgba(0,0,60,.05);
+  --shadow-md:0 4px 12px rgba(0,0,60,.08);
+  --shadow-lg:0 8px 24px rgba(0,0,60,.10);
+  --shadow-xl:0 16px 48px rgba(0,0,60,.12);
+  --ease-out:cubic-bezier(.16,1,.3,1);--ease-in-out:cubic-bezier(.65,0,.35,1);
+  --duration-fast:150ms;--duration-normal:300ms;--duration-slow:500ms;--stagger-delay:120ms;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-snap-type:y proximity;scroll-behavior:smooth}
+body{font-family:var(--font-body);color:var(--color-text);line-height:var(--leading-normal);
+  background:var(--color-bg);background-image:radial-gradient(ellipse at 20% 50%,rgba(0,0,153,.02) 0%,transparent 50%)}
+pre,code{white-space:pre-wrap;word-break:break-word;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--color-warm-gray);border-radius:var(--radius-full)}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(0,0,153,.95);backdrop-filter:blur(12px);border-bottom:2px solid var(--color-impulse-orange)}
+.progress-bar{position:absolute;top:0;left:0;height:3px;background:var(--color-impulse-orange);width:0;transition:width 100ms linear}
+.nav-inner{display:flex;align-items:center;height:var(--nav-height);padding:0 var(--space-6);max-width:var(--content-width-wide);margin:0 auto;gap:var(--space-4)}
+.nav-title{color:#FFF;font-family:var(--font-display);font-weight:700;font-size:var(--text-sm);white-space:nowrap}
+.nav-dots{display:flex;gap:var(--space-2);align-items:center;flex:1;justify-content:center}
+.nav-dot{width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,.4);background:transparent;cursor:pointer;transition:all var(--duration-fast)}
+.nav-dot.active{border-color:var(--color-impulse-orange);background:var(--color-impulse-orange)}
+.nav-dot.visited{background:var(--color-impulse-orange);border-color:var(--color-impulse-orange)}
+.nav-links{display:flex;gap:var(--space-3);align-items:center}
+.nav-link{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-1) var(--space-4);border-radius:var(--radius-full);border:1px solid rgba(255,255,255,.25);color:#FFF;font-size:var(--text-xs);font-family:var(--font-body);font-weight:500;text-decoration:none;transition:all var(--duration-fast)}
+.nav-link:hover{border-color:var(--color-impulse-orange);background:rgba(254,143,17,.15);color:var(--color-impulse-orange)}
+.nav-lang{font-size:1.3rem;text-decoration:none;margin-left:var(--space-3);transition:transform var(--duration-fast);display:flex;align-items:center}
+.nav-lang:hover{transform:scale(1.2)}
+
+/* MODULES */
+.module{min-height:100dvh;scroll-snap-align:start;padding:var(--space-16) var(--space-6);padding-top:calc(var(--nav-height) + var(--space-12))}
+.module-content{max-width:var(--content-width);margin:0 auto}
+.module-hero{background:var(--color-deep-blue);color:#FFF;display:flex;align-items:center}
+.module-hero .module-content{text-align:center}
+.module-light{background:var(--color-bg)}
+.module-warm{background:var(--color-bg-warm)}
+.module-header{margin-bottom:var(--space-10)}
+.module-number{font-size:var(--text-6xl);font-family:var(--font-display);font-weight:800;color:var(--color-deep-blue);opacity:.15;line-height:1}
+.module-hero .module-number{color:rgba(255,255,255,.15)}
+.module-title{font-size:var(--text-4xl);font-family:var(--font-display);font-weight:700;line-height:var(--leading-tight);margin-top:var(--space-2)}
+.module-hero .module-title{color:#FFF}
+.module-subtitle{font-size:var(--text-lg);color:var(--color-text-secondary);margin-top:var(--space-3)}
+.module-hero .module-subtitle{color:rgba(255,255,255,.7)}
+
+/* SCREENS */
+.screen{margin-bottom:var(--space-12)}
+.screen-heading{font-size:var(--text-2xl);font-family:var(--font-display);font-weight:600;margin-bottom:var(--space-6)}
+.screen p{font-size:var(--text-lg);line-height:var(--leading-normal);margin-bottom:var(--space-4);max-width:65ch}
+
+/* ANIMATE */
+.animate-in{opacity:0;transform:translateY(20px);transition:opacity var(--duration-slow) var(--ease-out),transform var(--duration-slow) var(--ease-out)}
+.animate-in.visible{opacity:1;transform:translateY(0)}
+.stagger-children>.animate-in{transition-delay:calc(var(--stagger-index,0) * var(--stagger-delay))}
+
+/* CARDS */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-6);margin:var(--space-8) 0}
+.card{background:var(--color-surface);border-radius:var(--radius-md);padding:var(--space-6);box-shadow:var(--shadow-md);border-top:4px solid var(--color-actor-1);transition:transform var(--duration-fast),box-shadow var(--duration-fast)}
+.card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.card:nth-child(2){border-top-color:var(--color-actor-2)}
+.card:nth-child(3){border-top-color:var(--color-actor-3)}
+.card:nth-child(4){border-top-color:var(--color-actor-4)}
+.card:nth-child(5){border-top-color:var(--color-actor-5)}
+.card:nth-child(6){border-top-color:var(--color-actor-6)}
+.card-icon{font-size:2rem;margin-bottom:var(--space-3)}
+.card-title{font-family:var(--font-display);font-weight:700;font-size:var(--text-xl);margin-bottom:var(--space-2)}
+.card-text{font-size:var(--text-sm);color:var(--color-text-secondary);line-height:var(--leading-normal)}
+
+/* FLOW */
+.flow-steps{display:flex;align-items:flex-start;gap:var(--space-4);margin:var(--space-8) 0;flex-wrap:wrap;justify-content:center}
+.flow-step{display:flex;flex-direction:column;align-items:center;text-align:center;flex:1;min-width:120px;max-width:160px;position:relative}
+.flow-step-num{width:44px;height:44px;border-radius:50%;background:var(--color-impulse-orange);color:#FFF;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:var(--text-lg);margin-bottom:var(--space-3);flex-shrink:0}
+.flow-step-label{font-family:var(--font-display);font-weight:600;font-size:var(--text-sm);margin-bottom:var(--space-1)}
+.flow-step-desc{font-size:var(--text-xs);color:var(--color-text-secondary);line-height:var(--leading-snug)}
+.flow-arrow{color:var(--color-accent-muted);font-size:1.5rem;margin-top:12px;flex-shrink:0}
+
+/* CALLOUT */
+.callout{border-left:4px solid var(--color-impulse-orange);background:var(--color-accent-light);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:var(--space-4) var(--space-6);margin:var(--space-6) 0}
+.callout-info{border-left-color:var(--color-info);background:var(--color-info-light)}
+.callout-warning{border-left-color:var(--color-warning);background:var(--color-warning-light)}
+.callout-success{border-left-color:var(--color-success);background:var(--color-success-light)}
+.callout-label{font-family:var(--font-display);font-weight:700;font-size:var(--text-sm);margin-bottom:var(--space-2)}
+.callout-text{font-size:var(--text-sm);line-height:var(--leading-normal)}
+
+/* QUIZ */
+.quiz{background:var(--color-surface);border-radius:var(--radius-md);padding:var(--space-8);box-shadow:var(--shadow-md);margin:var(--space-8) 0}
+.quiz-question{font-family:var(--font-display);font-weight:700;font-size:var(--text-xl);margin-bottom:var(--space-6)}
+.quiz-options{display:flex;flex-direction:column;gap:var(--space-3)}
+.quiz-option{padding:var(--space-4) var(--space-5);border:2px solid var(--color-border);border-radius:var(--radius-sm);cursor:pointer;transition:all var(--duration-fast);font-size:var(--text-base)}
+.quiz-option:hover{border-color:var(--color-impulse-orange);background:var(--color-accent-light)}
+.quiz-option.selected{border-color:var(--color-impulse-orange);background:var(--color-accent-light)}
+.quiz-option.correct{border-color:var(--color-success);background:var(--color-success-light)}
+.quiz-option.incorrect{border-color:var(--color-error);background:var(--color-error-light)}
+.quiz-feedback{margin-top:var(--space-4);padding:var(--space-4);border-radius:var(--radius-sm);font-size:var(--text-sm);display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:var(--color-success-light);color:#2D5F0D}
+.quiz-feedback.incorrect{background:var(--color-error-light);color:#8B0000}
+
+/* COMPARISON TABLE */
+.compare-table{width:100%;border-collapse:collapse;margin:var(--space-8) 0;font-size:var(--text-sm)}
+.compare-table th{background:var(--color-deep-blue);color:#FFF;padding:var(--space-3) var(--space-4);font-family:var(--font-display);font-weight:600;text-align:left}
+.compare-table td{padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border)}
+.compare-table tr:nth-child(even){background:var(--color-surface-warm)}
+.compare-table td:first-child{font-weight:600;color:var(--color-deep-blue)}
+
+/* WORKFLOW FLOW */
+.workflow{background:var(--color-surface);border-radius:var(--radius-lg);padding:var(--space-8);box-shadow:var(--shadow-md);margin:var(--space-8) 0}
+.workflow-title{font-family:var(--font-display);font-weight:700;font-size:var(--text-xl);margin-bottom:var(--space-6);text-align:center}
+.workflow-steps{display:flex;flex-direction:column;gap:var(--space-4)}
+.workflow-step{display:flex;align-items:flex-start;gap:var(--space-4);padding:var(--space-4);border-radius:var(--radius-sm);transition:background var(--duration-fast);cursor:default}
+.workflow-step:hover{background:var(--color-surface-warm)}
+.workflow-step-num{width:36px;height:36px;border-radius:50%;background:var(--color-impulse-orange);color:#FFF;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:var(--text-sm);flex-shrink:0}
+.workflow-step-content{flex:1}
+.workflow-step-title{font-family:var(--font-display);font-weight:600;font-size:var(--text-base);margin-bottom:var(--space-1)}
+.workflow-step-desc{font-size:var(--text-sm);color:var(--color-text-secondary)}
+
+/* INTERACTIVE LOOP ANIMATION */
+.loop-container{position:relative;width:100%;max-width:600px;margin:var(--space-8) auto;aspect-ratio:1/0.8}
+.loop-node{position:absolute;background:var(--color-surface);border-radius:var(--radius-md);padding:var(--space-3) var(--space-5);box-shadow:var(--shadow-md);font-family:var(--font-display);font-weight:600;font-size:var(--text-sm);text-align:center;cursor:pointer;transition:all var(--duration-normal);border:2px solid transparent;z-index:2}
+.loop-node:hover,.loop-node.active{border-color:var(--color-impulse-orange);box-shadow:var(--shadow-lg);transform:scale(1.05)}
+.loop-node .node-emoji{font-size:1.5rem;display:block;margin-bottom:var(--space-1)}
+.loop-desc{background:var(--color-surface-warm);border-radius:var(--radius-md);padding:var(--space-5);min-height:80px;margin-top:var(--space-4);text-align:center;font-size:var(--text-sm);color:var(--color-text-secondary);transition:all var(--duration-normal)}
+.loop-desc strong{color:var(--color-text);font-weight:600}
+
+/* BADGES */
+.badge-row{display:flex;flex-wrap:wrap;gap:var(--space-2);margin:var(--space-4) 0;justify-content:center}
+.badge{display:inline-flex;align-items:center;gap:var(--space-1);padding:var(--space-1) var(--space-3);border-radius:var(--radius-full);font-size:var(--text-xs);font-family:var(--font-mono);font-weight:500;text-transform:uppercase}
+.badge-blue{background:rgba(0,0,153,.1);color:var(--color-deep-blue)}
+.badge-orange{background:var(--color-accent-light);color:var(--color-accent-hover)}
+.badge-green{background:var(--color-success-light);color:#2D5F0D}
+
+/* TOOLTIP */
+.term{border-bottom:1.5px dashed var(--color-accent-muted);cursor:pointer;position:relative}
+.term:hover{border-bottom-color:var(--color-impulse-orange);color:var(--color-impulse-orange)}
+.term-tooltip{position:fixed;background:var(--color-bg-code);color:#D0D0E8;padding:var(--space-3) var(--space-4);border-radius:var(--radius-sm);font-size:var(--text-xs);max-width:280px;z-index:10000;pointer-events:none;opacity:0;transition:opacity var(--duration-fast);line-height:var(--leading-normal);box-shadow:var(--shadow-xl)}
+.term-tooltip.show{opacity:1}
+
+/* SETTINGS TABLE */
+.settings-grid{display:grid;grid-template-columns:1fr;gap:var(--space-3);margin:var(--space-6) 0}
+.setting-row{display:grid;grid-template-columns:140px 1fr;gap:var(--space-4);padding:var(--space-3) var(--space-4);border-radius:var(--radius-sm);background:var(--color-surface);border:1px solid var(--color-border-light)}
+.setting-name{font-family:var(--font-mono);font-weight:600;font-size:var(--text-sm);color:var(--color-deep-blue)}
+.setting-desc{font-size:var(--text-sm);color:var(--color-text-secondary)}
+
+/* FOOTER */
+.site-footer{background:var(--color-deep-blue);color:rgba(255,255,255,.6);padding:var(--space-6);font-size:var(--text-xs)}
+.footer-inner{max-width:var(--content-width);margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-4)}
+.footer-links{display:flex;gap:var(--space-6)}
+.footer-links a{color:rgba(255,255,255,.5);text-decoration:none;transition:color var(--duration-fast)}
+.footer-links a:hover{color:var(--color-impulse-orange)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  :root{--text-4xl:1.875rem;--text-5xl:2.25rem;--text-6xl:3rem}
+  .nav-links{gap:var(--space-2)}
+  .nav-link span:not(.nav-link-icon){display:none}
+  .card-grid{grid-template-columns:1fr}
+  .setting-row{grid-template-columns:1fr}
+  .compare-table{font-size:var(--text-xs)}
+}
+@media(max-width:480px){
+  :root{--text-4xl:1.5rem;--text-5xl:1.875rem;--text-6xl:2.25rem}
+  .module{padding:var(--space-8) var(--space-4);padding-top:calc(var(--nav-height) + var(--space-8))}
+  .flow-steps{flex-direction:column;align-items:center}
+  .flow-arrow{transform:rotate(90deg)}
+  .nav-link-text{display:none}
+  .nav-links{gap:var(--space-1)}
+  .nav-link{padding:var(--space-1) var(--space-2)}
+  .footer-inner{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav" aria-label="Kurs-Navigation">
+  <div class="progress-bar" aria-hidden="true"></div>
+  <div class="nav-inner">
+    <span class="nav-title">Skill Forge</span>
+    <div class="nav-dots">
+      <div class="nav-dot" data-target="module-0" aria-label="Modul 0: Start"></div>
+      <div class="nav-dot" data-target="module-1" aria-label="Modul 1"></div>
+      <div class="nav-dot" data-target="module-2" aria-label="Modul 2"></div>
+      <div class="nav-dot" data-target="module-3" aria-label="Modul 3"></div>
+      <div class="nav-dot" data-target="module-4" aria-label="Modul 4"></div>
+      <div class="nav-dot" data-target="module-5" aria-label="Modul 5"></div>
+    </div>
+    <div class="nav-links">
+      <a href="https://github.com/GodModeAI2025/skill-forge" class="nav-link" target="_blank" rel="noopener">
+        <svg class="nav-link-icon" viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span class="nav-link-text">GitHub</span>
+      </a>
+    </div>
+    <a href="index_en.html" class="nav-lang" title="English version">🇬🇧</a>
+  </div>
+</nav>
+
+<!-- MODULE 0: HERO -->
+<section class="module module-hero" id="module-0">
+  <div class="module-content">
+    <h1 style="font-family:var(--font-display);font-size:var(--text-5xl);font-weight:800;margin-bottom:var(--space-4)" class="animate-in">Skill Forge kennenlernen</h1>
+    <p style="font-size:var(--text-xl);color:rgba(255,255,255,.7);max-width:600px;margin:0 auto var(--space-8)" class="animate-in">Dein KI-Assistent wird über Nacht besser — ganz von allein. Lerne, wie du Skill Forge einsetzt.</p>
+    <div class="badge-row animate-in">
+      <span class="badge" style="background:rgba(255,255,255,.15);color:#FFF">Autonome Verbesserung</span>
+      <span class="badge" style="background:rgba(255,255,255,.15);color:#FFF">Kein Code nötig</span>
+      <span class="badge" style="background:rgba(255,255,255,.15);color:#FFF">Über Nacht laufen lassen</span>
+    </div>
+    <p style="font-size:var(--text-sm);color:rgba(255,255,255,.4);margin-top:var(--space-12)" class="animate-in">↓ Scrolle nach unten oder nutze die Pfeiltasten</p>
+  </div>
+</section>
+
+<!-- MODULE 1: WAS IST SKILL FORGE? -->
+<section class="module module-light" id="module-1">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h1 class="module-title">Was ist Skill Forge?</h1>
+      <p class="module-subtitle">Dein persönlicher Verbesserungsautomat für KI-Skills und Code</p>
+    </header>
+
+    <div class="module-body">
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Die Grundidee</h2>
+        <p>Stell dir vor, du hast eine Anweisung für deine KI geschrieben — einen sogenannten <span class="term" data-tooltip="Ein Skill ist eine Textdatei (SKILL.md), die Claude sagt, wie es eine bestimmte Aufgabe erledigen soll. Wie ein Handbuch für die KI.">Skill</span>. Er funktioniert okay, aber nicht perfekt.</p>
+        <p>Skill Forge nimmt diesen Skill, testet ihn automatisch, findet Schwachstellen und verbessert ihn — Schritt für Schritt. Und das Beste: Du kannst das über Nacht laufen lassen.</p>
+      </section>
+
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Wie eine Werkstatt für KI</h2>
+        <div class="flow-steps stagger-children">
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">1</div>
+            <div class="flow-step-label">Analysieren</div>
+            <div class="flow-step-desc">Schwachstelle finden</div>
+          </div>
+          <span class="flow-arrow animate-in">→</span>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">2</div>
+            <div class="flow-step-label">Verbessern</div>
+            <div class="flow-step-desc">Gezielte Änderung</div>
+          </div>
+          <span class="flow-arrow animate-in">→</span>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">3</div>
+            <div class="flow-step-label">Testen</div>
+            <div class="flow-step-desc">Messen ob's besser ist</div>
+          </div>
+          <span class="flow-arrow animate-in">→</span>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">4</div>
+            <div class="flow-step-label">Entscheiden</div>
+            <div class="flow-step-desc">Behalten oder verwerfen</div>
+          </div>
+        </div>
+        <div class="callout">
+          <div class="callout-label">💡 Aha-Moment</div>
+          <div class="callout-text">Das Prinzip stammt von KI-Forscher Andrej Karpathy: Kleine Änderungen automatisch testen, nur Verbesserungen behalten. Skill Forge überträgt das auf deine Arbeit.</div>
+        </div>
+      </section>
+
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Was Skill Forge bereits geschafft hat</h2>
+        <div class="card-grid stagger-children">
+          <div class="card animate-in">
+            <div class="card-icon">✍️</div>
+            <div class="card-title">Humanizer-Skill</div>
+            <div class="card-text">Von 74% auf 90% Qualität in nur 3 Experimenten. Texte klingen jetzt natürlicher und menschlicher.</div>
+          </div>
+          <div class="card animate-in">
+            <div class="card-icon">📖</div>
+            <div class="card-title">Fachbuch-Lektorat</div>
+            <div class="card-text">Von 87% auf 100% — alle Testfälle bestanden nach 3 Runden automatischer Verbesserung.</div>
+          </div>
+          <div class="card animate-in">
+            <div class="card-icon">📰</div>
+            <div class="card-title">KI-News-Briefing</div>
+            <div class="card-text">Von 93% auf 100% in nur einem einzigen Experiment. LinkedIn-Zeichenlimit wurde automatisch eingehalten.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- QUIZ 1 -->
+      <section class="screen animate-in">
+        <div class="quiz" id="quiz-1">
+          <div class="quiz-question">Was passiert, wenn eine Änderung den Skill verschlechtert?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="false" onclick="checkQuiz('quiz-1',this)">Die Änderung bleibt trotzdem bestehen</div>
+            <div class="quiz-option" data-correct="true" onclick="checkQuiz('quiz-1',this)">Die Änderung wird rückgängig gemacht</div>
+            <div class="quiz-option" data-correct="false" onclick="checkQuiz('quiz-1',this)">Der gesamte Skill wird gelöscht</div>
+          </div>
+          <div class="quiz-feedback correct" id="quiz-1-correct">Genau! Skill Forge macht jede Verschlechterung automatisch rückgängig. Dein Skill kann nur besser werden, nie schlechter.</div>
+          <div class="quiz-feedback incorrect" id="quiz-1-incorrect">Nicht ganz. Skill Forge hat ein Sicherheitsnetz: Jede Verschlechterung wird automatisch rückgängig gemacht. Dein Original ist sicher.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 2: DIE HAUPTBEREICHE -->
+<section class="module module-warm" id="module-2">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">Die zwei Welten</h1>
+      <p class="module-subtitle">Skill Forge hat zwei Modi — und du wählst, wie viel Kontrolle du haben willst</p>
+    </header>
+
+    <div class="module-body">
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Was willst du verbessern?</h2>
+        <div class="card-grid">
+          <div class="card animate-in" style="border-top-color:var(--color-actor-1)">
+            <div class="card-icon">🎯</div>
+            <div class="card-title">Skill-Modus</div>
+            <div class="card-text">Optimiert eine <span class="term" data-tooltip="Die Datei SKILL.md ist das Herzstück jedes Skills — sie sagt Claude, was es tun soll und wie.">SKILL.md</span> — also die Anweisung, die deine KI steuert. Ideal wenn du einen Claude-Skill verbessern willst.</div>
+          </div>
+          <div class="card animate-in" style="border-top-color:var(--color-actor-2)">
+            <div class="card-icon">⚙️</div>
+            <div class="card-title">Generic-Modus</div>
+            <div class="card-text">Optimiert beliebige Dateien gegen eine messbare Zahl — z.B. Testabdeckung, Dateigröße oder Performance-Score. Für Entwickler-Projekte.</div>
+          </div>
+        </div>
+        <div class="callout-info callout">
+          <div class="callout-label">ℹ️ Automatische Erkennung</div>
+          <div class="callout-text">Du musst den Modus nicht selbst wählen. Nennst du einen Skill-Namen, wählt Forge den Skill-Modus. Nennst du eine Metrik, wählt es den Generic-Modus.</div>
+        </div>
+      </section>
+
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Wie viel Kontrolle willst du?</h2>
+        <table class="compare-table">
+          <thead>
+            <tr><th></th><th>🚀 Auto-Modus</th><th>🎛️ Guided-Modus</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Ablauf</td><td>Läuft allein durch</td><td>Du entscheidest mit</td></tr>
+            <tr><td>Ideal für</td><td>Über Nacht laufen lassen</td><td>Erstmalige Nutzung</td></tr>
+            <tr><td>Hypothesen</td><td>Automatisch umgesetzt</td><td>Du siehst den Vorschlag vorher</td></tr>
+            <tr><td>Ergebnis</td><td>Morgens den Report lesen</td><td>Schritt für Schritt miterleben</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Drei Helfer im Hintergrund</h2>
+        <p>Skill Forge nutzt drei spezialisierte <span class="term" data-tooltip="Ein Agent ist ein KI-Modul mit einer klar definierten Aufgabe. Jeder Agent liest Eingaben, verarbeitet sie und gibt ein strukturiertes Ergebnis zurück.">Agenten</span>, die zusammenarbeiten:</p>
+        <div class="card-grid stagger-children">
+          <div class="card animate-in">
+            <div class="card-icon">🔬</div>
+            <div class="card-title">Der Wissenschaftler</div>
+            <div class="card-text">Analysiert, was schiefgeht, und stellt eine Hypothese auf: „Ich glaube, das Problem liegt hier."</div>
+          </div>
+          <div class="card animate-in">
+            <div class="card-icon">🔧</div>
+            <div class="card-title">Der Chirurg</div>
+            <div class="card-text">Setzt die Hypothese als minimal-invasive Änderung um. So wenig wie möglich ändern, so viel wie nötig.</div>
+          </div>
+          <div class="card animate-in">
+            <div class="card-icon">⚖️</div>
+            <div class="card-title">Der Richter</div>
+            <div class="card-text">Bewertet das Ergebnis neutral. War die Änderung eine Verbesserung? Oder hat sie etwas verschlechtert?</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- QUIZ 2 -->
+      <section class="screen animate-in">
+        <div class="quiz" id="quiz-2">
+          <div class="quiz-question">Du willst deinen LinkedIn-Post-Skill über Nacht verbessern. Welchen Modus nutzt du?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="false" onclick="checkQuiz('quiz-2',this)">Generic-Modus, Guided</div>
+            <div class="quiz-option" data-correct="true" onclick="checkQuiz('quiz-2',this)">Skill-Modus, Auto</div>
+            <div class="quiz-option" data-correct="false" onclick="checkQuiz('quiz-2',this)">Generic-Modus, Auto</div>
+            <div class="quiz-option" data-correct="false" onclick="checkQuiz('quiz-2',this)">Skill-Modus, Guided</div>
+          </div>
+          <div class="quiz-feedback correct" id="quiz-2-correct">Richtig! Ein LinkedIn-Post-Skill ist eine SKILL.md → Skill-Modus. Über Nacht → Auto-Modus. Perfekte Kombination.</div>
+          <div class="quiz-feedback incorrect" id="quiz-2-incorrect">Fast! Da es um einen Skill (SKILL.md) geht → Skill-Modus. Da es über Nacht laufen soll → Auto-Modus. Also: Skill-Modus, Auto.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 3: DER EXPERIMENT-LOOP -->
+<section class="module module-light" id="module-3">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">Der Experiment-Loop</h1>
+      <p class="module-subtitle">Das Kern-Feature Schritt für Schritt — klick dich durch den Loop</p>
+    </header>
+
+    <div class="module-body">
+      <section class="screen animate-in">
+        <h2 class="screen-heading">So läuft ein Durchgang ab</h2>
+        <p>Jede Verbesserungsrunde folgt dem gleichen Muster. Klicke auf einen Schritt, um mehr zu erfahren:</p>
+
+        <div class="loop-container" id="loop-interactive">
+          <div class="loop-node active" style="top:0;left:50%;transform:translateX(-50%)" data-desc="<strong>Setup-Wizard:</strong> Bevor es losgeht, führt dich ein Assistent durch 6 einfache Schritte: Modus wählen, Ziel festlegen, Testfälle erstellen und einen Probelauf starten." onclick="activateNode(this)">
+            <span class="node-emoji">🧙</span> Wizard
+          </div>
+          <div class="loop-node" style="top:25%;left:5%" data-desc="<strong>Hypothese bilden:</strong> Der Wissenschaftler-Agent analysiert die Testergebnisse und sagt: ‚Ich glaube, wenn wir X ändern, wird Y besser.' Er prüft auch, ob das schon versucht wurde." onclick="activateNode(this)">
+            <span class="node-emoji">🔬</span> Hypothese
+          </div>
+          <div class="loop-node" style="top:25%;right:5%" data-desc="<strong>Mutation durchführen:</strong> Der Chirurg-Agent setzt die Hypothese um. Er ändert so wenig wie möglich und erstellt vorher immer eine Sicherungskopie." onclick="activateNode(this)">
+            <span class="node-emoji">🔧</span> Mutation
+          </div>
+          <div class="loop-node" style="top:55%;right:5%" data-desc="<strong>Testen & Messen:</strong> Die veränderte Version wird gegen alle Testfälle geprüft. Der Score zeigt objektiv: besser, gleich oder schlechter?" onclick="activateNode(this)">
+            <span class="node-emoji">📊</span> Messen
+          </div>
+          <div class="loop-node" style="top:55%;left:5%" data-desc="<strong>Entscheidung:</strong> Score um mehr als 2% besser → behalten. Mehr als 5% schlechter → rückgängig machen. Dazwischen → leichte Präferenz für die neue Version." onclick="activateNode(this)">
+            <span class="node-emoji">⚖️</span> Keep/Revert
+          </div>
+        </div>
+        <div class="loop-desc" id="loop-desc"><strong>Setup-Wizard:</strong> Bevor es losgeht, führt dich ein Assistent durch 6 einfache Schritte: Modus wählen, Ziel festlegen, Testfälle erstellen und einen Probelauf starten.</div>
+      </section>
+
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Der Wizard — dein Startpunkt</h2>
+        <p>Bevor der Loop startet, richtet der <span class="term" data-tooltip="Ein Setup-Wizard ist ein Schritt-für-Schritt-Assistent, der dich durch die Konfiguration führt. Du musst nichts manuell einrichten.">Wizard</span> alles ein:</p>
+        <div class="workflow">
+          <div class="workflow-title">6 Schritte zum Start</div>
+          <div class="workflow-steps stagger-children">
+            <div class="workflow-step animate-in">
+              <div class="workflow-step-num">1</div>
+              <div class="workflow-step-content">
+                <div class="workflow-step-title">Modus wählen</div>
+                <div class="workflow-step-desc">Auto oder Guided? Skill oder Generic?</div>
+              </div>
+            </div>
+            <div class="workflow-step animate-in">
+              <div class="workflow-step-num">2</div>
+              <div class="workflow-step-content">
+                <div class="workflow-step-title">Ziel finden</div>
+                <div class="workflow-step-desc">Welche Datei soll verbessert werden?</div>
+              </div>
+            </div>
+            <div class="workflow-step animate-in">
+              <div class="workflow-step-num">3</div>
+              <div class="workflow-step-content">
+                <div class="workflow-step-title">Testfälle erstellen</div>
+                <div class="workflow-step-desc">3–5 automatische Tests, aufgeteilt in Training und Prüfung</div>
+              </div>
+            </div>
+            <div class="workflow-step animate-in">
+              <div class="workflow-step-num">4</div>
+              <div class="workflow-step-content">
+                <div class="workflow-step-title">Richtung festlegen</div>
+                <div class="workflow-step-desc">Höher ist besser? Oder niedriger?</div>
+              </div>
+            </div>
+            <div class="workflow-step animate-in">
+              <div class="workflow-step-num">5</div>
+              <div class="workflow-step-content">
+                <div class="workflow-step-title">Probelauf</div>
+                <div class="workflow-step-desc">Ein Testlauf, um sicherzustellen, dass alles funktioniert</div>
+              </div>
+            </div>
+            <div class="workflow-step animate-in">
+              <div class="workflow-step-num">6</div>
+              <div class="workflow-step-content">
+                <div class="workflow-step-title">Bestätigen & Starten</div>
+                <div class="workflow-step-desc">Alles in Ordnung? Dann geht's los!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Wann stoppt der Loop?</h2>
+        <div class="card-grid stagger-children">
+          <div class="card animate-in" style="border-top-color:var(--color-success)">
+            <div class="card-icon">🎯</div>
+            <div class="card-title">Ziel erreicht</div>
+            <div class="card-text">Score von 95% oder höher — der Skill ist exzellent.</div>
+          </div>
+          <div class="card animate-in" style="border-top-color:var(--color-warning)">
+            <div class="card-icon">🔄</div>
+            <div class="card-title">Maximum erreicht</div>
+            <div class="card-text">10 Experimente durchgeführt (oder dein eigenes Limit).</div>
+          </div>
+          <div class="card animate-in" style="border-top-color:var(--color-info)">
+            <div class="card-icon">📈</div>
+            <div class="card-title">Plateau erkannt</div>
+            <div class="card-text">3× hintereinander keine Verbesserung? Forge erkennt, dass das Optimum erreicht ist.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- QUIZ 3 -->
+      <section class="screen animate-in">
+        <div class="quiz" id="quiz-3">
+          <div class="quiz-question">Warum macht Skill Forge vor dem eigentlichen Loop einen „Probelauf" (Dry Run)?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="false" onclick="checkQuiz('quiz-3',this)">Um den Skill schon einmal zu verbessern</div>
+            <div class="quiz-option" data-correct="false" onclick="checkQuiz('quiz-3',this)">Um dir das Ergebnis vorab zu zeigen</div>
+            <div class="quiz-option" data-correct="true" onclick="checkQuiz('quiz-3',this)">Um sicherzustellen, dass die Messung funktioniert</div>
+          </div>
+          <div class="quiz-feedback correct" id="quiz-3-correct">Genau! Der Probelauf prüft, ob die Tests korrekt laufen und ein Score berechnet werden kann. So vermeidest du Fehler im Nachtlauf.</div>
+          <div class="quiz-feedback incorrect" id="quiz-3-incorrect">Nicht ganz. Der Probelauf ist ein Sicherheitscheck: Er stellt sicher, dass die Messung funktioniert, bevor der Loop startet. So läuft alles sauber.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 4: TIPPS & EINSTELLUNGEN -->
+<section class="module module-warm" id="module-4">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">04</span>
+      <h1 class="module-title">Tipps & Einstellungen</h1>
+      <p class="module-subtitle">So holst du das Beste aus Skill Forge heraus</p>
+    </header>
+
+    <div class="module-body">
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Schnellstart — In drei Sätzen loslegen</h2>
+        <div class="card-grid">
+          <div class="card animate-in" style="border-top-color:var(--color-actor-2)">
+            <div class="card-icon">💬</div>
+            <div class="card-title">Einfach sagen:</div>
+            <div class="card-text" style="font-family:var(--font-mono);font-size:var(--text-sm);background:var(--color-surface-warm);padding:var(--space-3);border-radius:var(--radius-sm);margin-top:var(--space-2)">
+              „Nutze Skill Forge, um meinen linkedin-content Skill zu verbessern"
+            </div>
+          </div>
+          <div class="card animate-in" style="border-top-color:var(--color-actor-3)">
+            <div class="card-icon">🎛️</div>
+            <div class="card-title">Mit Kontrolle:</div>
+            <div class="card-text" style="font-family:var(--font-mono);font-size:var(--text-sm);background:var(--color-surface-warm);padding:var(--space-3);border-radius:var(--radius-sm);margin-top:var(--space-2)">
+              „Nutze Skill Forge im Guided-Modus für meinen humanizer Skill — ich will jeden Schritt sehen"
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Wichtige Einstellungen</h2>
+        <p>Du kannst diese Werte beim Start anpassen — oder die Standardwerte benutzen:</p>
+        <div class="settings-grid stagger-children">
+          <div class="setting-row animate-in">
+            <div class="setting-name">Experimente</div>
+            <div class="setting-desc">Maximal 10 Runden (Standard). Erhöhe auf 15–20 für komplexe Skills.</div>
+          </div>
+          <div class="setting-row animate-in">
+            <div class="setting-name">Zeitbudget</div>
+            <div class="setting-desc">120 Minuten (Standard). Für Overnight-Runs auf 360+ setzen.</div>
+          </div>
+          <div class="setting-row animate-in">
+            <div class="setting-name">Schwellenwert</div>
+            <div class="setting-desc">Eine Änderung muss mindestens 2% Verbesserung bringen, um behalten zu werden.</div>
+          </div>
+          <div class="setting-row animate-in">
+            <div class="setting-name">Crash-Limit</div>
+            <div class="setting-desc">Nach 3 Fehlern in Folge stoppt der Loop. Schützt vor endlosen Schleifen.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Der Morning Report</h2>
+        <p>Nach dem Nachtlauf findest du eine Zusammenfassung mit allem, was passiert ist:</p>
+        <div class="workflow">
+          <div class="workflow-title">Was im Report steht</div>
+          <div class="workflow-steps stagger-children">
+            <div class="workflow-step animate-in">
+              <div class="workflow-step-num" style="background:var(--color-actor-1)">📊</div>
+              <div class="workflow-step-content">
+                <div class="workflow-step-title">Score-Verlauf</div>
+                <div class="workflow-step-desc">Wo du gestartet bist und wo du jetzt stehst</div>
+              </div>
+            </div>
+            <div class="workflow-step animate-in">
+              <div class="workflow-step-num" style="background:var(--color-actor-3)">✅</div>
+              <div class="workflow-step-content">
+                <div class="workflow-step-title">Top-Verbesserungen</div>
+                <div class="workflow-step-desc">Die 3 wirkungsvollsten Änderungen im Detail</div>
+              </div>
+            </div>
+            <div class="workflow-step animate-in">
+              <div class="workflow-step-num" style="background:var(--color-error)">❌</div>
+              <div class="workflow-step-content">
+                <div class="workflow-step-title">Was nicht geklappt hat</div>
+                <div class="workflow-step-desc">Fehlgeschlagene Hypothesen — und warum</div>
+              </div>
+            </div>
+            <div class="workflow-step animate-in">
+              <div class="workflow-step-num" style="background:var(--color-actor-4)">💡</div>
+              <div class="workflow-step-content">
+                <div class="workflow-step-title">Empfehlungen</div>
+                <div class="workflow-step-desc">Was du als Nächstes tun könntest</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen animate-in">
+        <div class="callout-success callout">
+          <div class="callout-label">🛡️ Sicherheitsnetz</div>
+          <div class="callout-text">Skill Forge erstellt vor jeder Änderung eine Sicherungskopie (<span class="term" data-tooltip="Ein Snapshot ist eine vollständige Kopie deines Skills zu einem bestimmten Zeitpunkt. Du kannst jederzeit zu jedem Snapshot zurückkehren.">Snapshot</span>). Selbst nach 10 Experimenten kannst du jederzeit zum Original zurückkehren.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 5: FAQ -->
+<section class="module module-light" id="module-5">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">Häufige Fragen</h1>
+      <p class="module-subtitle">Antworten auf die wichtigsten Fragen — und was du bei Problemen tun kannst</p>
+    </header>
+
+    <div class="module-body">
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Die wichtigsten Fragen</h2>
+        <div class="faq-list" style="display:flex;flex-direction:column;gap:var(--space-4)">
+          <details class="faq-item" style="background:var(--color-surface);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);overflow:hidden">
+            <summary style="padding:var(--space-4) var(--space-5);font-family:var(--font-display);font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;gap:var(--space-3)">
+              <span style="color:var(--color-impulse-orange);font-size:1.2rem">▸</span>
+              Kann mein Skill durch Skill Forge schlechter werden?
+            </summary>
+            <div style="padding:0 var(--space-5) var(--space-4);font-size:var(--text-sm);color:var(--color-text-secondary)">Nein. Jede Änderung, die den Score verschlechtert, wird automatisch rückgängig gemacht. Zusätzlich gibt es Snapshots — du kannst jederzeit zum Ausgangszustand zurückkehren.</div>
+          </details>
+          <details class="faq-item" style="background:var(--color-surface);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);overflow:hidden">
+            <summary style="padding:var(--space-4) var(--space-5);font-family:var(--font-display);font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;gap:var(--space-3)">
+              <span style="color:var(--color-impulse-orange);font-size:1.2rem">▸</span>
+              Was ist „Overfitting" und warum sollte mich das interessieren?
+            </summary>
+            <div style="padding:0 var(--space-5) var(--space-4);font-size:var(--text-sm);color:var(--color-text-secondary)"><span class="term" data-tooltip="Overfitting bedeutet, dass eine Optimierung nur für die Testfälle gut funktioniert, aber nicht für echte neue Aufgaben. Wie ein Schüler, der nur die Prüfungsfragen auswendig lernt.">Overfitting</span> wäre, wenn dein Skill nur die Testfälle perfekt kann, aber bei neuen Aufgaben versagt. Skill Forge schützt dagegen mit einem Train/Test-Split: 60% der Tests optimieren, 40% prüfen blind.</div>
+          </details>
+          <details class="faq-item" style="background:var(--color-surface);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);overflow:hidden">
+            <summary style="padding:var(--space-4) var(--space-5);font-family:var(--font-display);font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;gap:var(--space-3)">
+              <span style="color:var(--color-impulse-orange);font-size:1.2rem">▸</span>
+              Wie lange dauert ein Durchlauf?
+            </summary>
+            <div style="padding:0 var(--space-5) var(--space-4);font-size:var(--text-sm);color:var(--color-text-secondary)">Jedes einzelne Experiment dauert 5–15 Minuten. Ein voller Lauf mit 10 Experimenten liegt typischerweise bei 1–2 Stunden. Du kannst das Zeitbudget im Wizard anpassen.</div>
+          </details>
+          <details class="faq-item" style="background:var(--color-surface);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);overflow:hidden">
+            <summary style="padding:var(--space-4) var(--space-5);font-family:var(--font-display);font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;gap:var(--space-3)">
+              <span style="color:var(--color-impulse-orange);font-size:1.2rem">▸</span>
+              Was brauche ich, um loszulegen?
+            </summary>
+            <div style="padding:0 var(--space-5) var(--space-4);font-size:var(--text-sm);color:var(--color-text-secondary)">Nur einen Claude Cowork Zugang und den Skill-Forge-Ordner in deinem Skills-Verzeichnis. Dann sagst du einfach: „Nutze Skill Forge, um meinen [Skill-Name] zu verbessern" — und der Wizard führt dich durch den Rest.</div>
+          </details>
+          <details class="faq-item" style="background:var(--color-surface);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);overflow:hidden">
+            <summary style="padding:var(--space-4) var(--space-5);font-family:var(--font-display);font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;gap:var(--space-3)">
+              <span style="color:var(--color-impulse-orange);font-size:1.2rem">▸</span>
+              Was tun, wenn der Loop abstürzt?
+            </summary>
+            <div style="padding:0 var(--space-5) var(--space-4);font-size:var(--text-sm);color:var(--color-text-secondary)">Skill Forge hat eine eingebaute Crash-Erkennung. Einzelne Fehler werden übersprungen. Erst nach 3 Fehlern in Folge stoppt der Loop und meldet das Problem im Report. Dein Skill bleibt dabei immer sicher.</div>
+          </details>
+        </div>
+      </section>
+
+      <!-- QUIZ 4 -->
+      <section class="screen animate-in">
+        <div class="quiz" id="quiz-4">
+          <div class="quiz-question">Wovor schützt der „Train/Test-Split" bei Skill Forge?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="false" onclick="checkQuiz('quiz-4',this)">Vor Datenverlust bei Abstürzen</div>
+            <div class="quiz-option" data-correct="true" onclick="checkQuiz('quiz-4',this)">Davor, dass der Skill nur für die Testfälle optimiert wird</div>
+            <div class="quiz-option" data-correct="false" onclick="checkQuiz('quiz-4',this)">Vor zu langen Laufzeiten</div>
+          </div>
+          <div class="quiz-feedback correct" id="quiz-4-correct">Richtig! Der Split sorgt dafür, dass 40% der Tests blind bleiben — so wird geprüft, ob Verbesserungen auch bei neuen Aufgaben funktionieren.</div>
+          <div class="quiz-feedback incorrect" id="quiz-4-incorrect">Nicht ganz. Der Train/Test-Split schützt vor Overfitting: 60% der Tests optimieren, 40% bleiben blind — so wird geprüft, ob Verbesserungen generalisieren.</div>
+        </div>
+      </section>
+
+      <section class="screen animate-in" style="text-align:center;padding-top:var(--space-12)">
+        <h2 class="screen-heading" style="text-align:center">Bereit loszulegen?</h2>
+        <p style="max-width:500px;margin:0 auto var(--space-6)">Kopiere den <code style="background:var(--color-bg-code);color:#D0D0E8;padding:2px 8px;border-radius:4px;font-family:var(--font-mono);font-size:var(--text-sm)">skill-forge/</code> Ordner in dein Skills-Verzeichnis und sag Claude:</p>
+        <div style="background:var(--color-bg-code);color:#D0D0E8;padding:var(--space-5) var(--space-6);border-radius:var(--radius-md);font-family:var(--font-mono);font-size:var(--text-sm);max-width:500px;margin:0 auto var(--space-8);text-align:left">
+          „Nutze Skill Forge, um meinen<br>[skill-name] Skill zu verbessern"
+        </div>
+        <div class="callout" style="max-width:500px;margin:0 auto;text-align:left">
+          <div class="callout-label">🎉 Geschafft!</div>
+          <div class="callout-text">Du weißt jetzt alles, was du brauchst. Der Wizard führt dich durch den Rest. Viel Erfolg mit deinem verbesserten Skill!</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="footer-copy">© 2026 Mark Zimmermann</span>
+    <div class="footer-links">
+      <a href="https://godmodeai2025.github.io/MarkZimmermann/" target="_blank" rel="noopener">Impressum</a>
+    </div>
+  </div>
+</footer>
+
+<!-- TOOLTIP CONTAINER -->
+<div class="term-tooltip" id="tooltip"></div>
+
+<script>
+(function(){
+  // Animate-in Observer
+  const obs=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting){el.target.classList.add('visible');obs.unobserve(el.target)}})},{rootMargin:'0px 0px -10% 0px',threshold:0.1});
+  document.querySelectorAll('.animate-in').forEach(el=>obs.observe(el));
+  // Stagger
+  document.querySelectorAll('.stagger-children').forEach(p=>Array.from(p.children).forEach((c,i)=>c.style.setProperty('--stagger-index',i)));
+  // Progress + Dots
+  const pb=document.querySelector('.progress-bar'),dots=document.querySelectorAll('.nav-dot'),mods=document.querySelectorAll('.module'),navH=60;
+  function activeIndex(){let idx=0;mods.forEach((m,i)=>{if(m.getBoundingClientRect().top<=navH+20)idx=i});return idx}
+  function updateDots(){const ai=activeIndex();dots.forEach((d,i)=>{d.classList.toggle('active',i===ai);if(i<=ai)d.classList.add('visited')})}
+  window.addEventListener('scroll',()=>requestAnimationFrame(()=>{if(pb)pb.style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight)*100)+'%';updateDots()}),{passive:true});
+  updateDots();
+  dots.forEach(d=>d.addEventListener('click',()=>{const t=document.getElementById(d.dataset.target);if(!t)return;window.scrollTo({top:t.getBoundingClientRect().top+window.scrollY-navH,behavior:'smooth'})}));
+  // Keyboard
+  function scrollToMod(i){const top=mods[i].getBoundingClientRect().top+window.scrollY-navH;window.scrollTo({top:Math.max(0,top),behavior:'smooth'})}
+  document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA'].includes(e.target.tagName))return;if(e.key==='ArrowDown'||e.key==='ArrowRight'){scrollToMod(Math.min(activeIndex()+1,mods.length-1));e.preventDefault()}if(e.key==='ArrowUp'||e.key==='ArrowLeft'){scrollToMod(Math.max(activeIndex()-1,0));e.preventDefault()}});
+  // Tooltips
+  const tip=document.getElementById('tooltip');
+  document.querySelectorAll('.term').forEach(t=>{
+    t.addEventListener('mouseenter',e=>{tip.innerHTML=t.dataset.tooltip;tip.classList.add('show');const r=t.getBoundingClientRect();tip.style.left=Math.min(r.left,window.innerWidth-290)+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px'});
+    t.addEventListener('mouseleave',()=>tip.classList.remove('show'));
+    t.addEventListener('click',e=>{e.stopPropagation();if(tip.classList.contains('show'))tip.classList.remove('show');else{tip.innerHTML=t.dataset.tooltip;tip.classList.add('show');const r=t.getBoundingClientRect();tip.style.left=Math.min(r.left,window.innerWidth-290)+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px'}});
+  });
+  document.addEventListener('click',()=>tip.classList.remove('show'));
+  // FAQ arrows
+  document.querySelectorAll('.faq-item').forEach(d=>{const arrow=d.querySelector('summary span');d.addEventListener('toggle',()=>{arrow.textContent=d.open?'▾':'▸'})});
+})();
+// Quiz
+function checkQuiz(id,el){const quiz=document.getElementById(id);if(quiz.dataset.answered)return;quiz.dataset.answered='true';const opts=quiz.querySelectorAll('.quiz-option');opts.forEach(o=>{o.style.pointerEvents='none';if(o.dataset.correct==='true')o.classList.add('correct');else if(o===el)o.classList.add('incorrect')});const correct=el.dataset.correct==='true';document.getElementById(id+'-'+(correct?'correct':'incorrect')).classList.add('show')}
+// Loop interactive
+function activateNode(el){document.querySelectorAll('.loop-node').forEach(n=>n.classList.remove('active'));el.classList.add('active');document.getElementById('loop-desc').innerHTML=el.dataset.desc}
+</script>
+</body>
+</html>
